@@ -189,14 +189,14 @@ namespace game
 
     void ClientGameManager::Draw(sf::RenderTarget& target)
     {
-        UpdateCameraView();
-        target.setView(cameraView_);
+        //UpdateCameraView(); //Enlever.
+        target.setView(originalView_);// Modifier.
 
         starBackground_.Draw(target);
         spriteManager_.Draw(target);
 
         // Draw texts on screen
-        target.setView(originalView_);
+        //target.setView(originalView_);//Enlever.
         if (state_ & FINISHED)
         {
             if (winner_ == GetPlayerNumber())
