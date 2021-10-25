@@ -17,7 +17,7 @@ namespace game
         for (core::Entity playerEntity = 0; playerEntity < entityManager_.GetEntitiesSize(); playerEntity++)
         {
             if (!entityManager_.HasComponent(playerEntity,
-                                                   static_cast<core::EntityMask>(ComponentType::PLAYER_CHARACTER)))
+            static_cast<core::EntityMask>(ComponentType::PLAYER_CHARACTER)))
                 continue;
             auto playerBody = physicsManager_.GetBody(playerEntity);
             auto playerCharacter = GetComponent(playerEntity);
@@ -26,19 +26,21 @@ namespace game
             const bool right = input & PlayerInputEnum::PlayerInput::RIGHT;
             const bool left = input & PlayerInputEnum::PlayerInput::LEFT;
             const bool up = input & PlayerInputEnum::PlayerInput::UP;
-            const bool down = input & PlayerInputEnum::PlayerInput::DOWN;
+            //const bool down = input & PlayerInputEnum::PlayerInput::DOWN;// Enlever
 
             //const auto angularVelocity = ((left ? -1.0f : 0.0f) + (right ? 1.0f : 0.0f)) * playerAngularSpeed;
 
             //playerBody.angularVelocity = angularVelocity;
 
-            auto dir = core::Vec2f::up();
-            //dir = dir.Rotate(-(playerBody.rotation + playerBody.angularVelocity * dt.asSeconds()));
+            auto dir = core::Vec2f::up(); //Enlever.
+            //dir = dir.Rotate(-(playerBody.rotation + playerBody.angularVelocity * dt.asSeconds()));// Enlever.
+            auto dir_l = core::Vec2f::left();
+            
+            const auto acceleration = ((up ? -0.5f : 0.0f) + (up ? 0.5f : 0.0f)) * dir; //Enlever.
+            const auto acceleration_l = ((left ? 0.0f : -2.0f) + (right ? 0.0f : +2.0f)) * dir_l;
 
-            const auto acceleration = ((down ? -1.0f : 0.0f) + (up ? 1.0f : 0.0f)) * dir;
-
-
-            playerBody.velocity += acceleration * dt.asSeconds();
+            //playerBody.velocity += acceleration * dt.asSeconds(); // Enlever.
+            playerBody.velocity += acceleration + acceleration_l * dt.asSeconds();
 
             physicsManager_.SetBody(playerEntity, playerBody);
 

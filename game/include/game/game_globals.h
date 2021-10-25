@@ -55,6 +55,7 @@ namespace game
 
     enum class ComponentType : core::EntityMask
     {
+        BACKGROUND = static_cast<core::EntityMask>(core::ComponentType::OTHER_TYPE),//Rajout.
         PLAYER_CHARACTER = static_cast<core::EntityMask>(core::ComponentType::OTHER_TYPE),
         BULLET = static_cast<core::EntityMask>(core::ComponentType::OTHER_TYPE) << 1u,
         ASTEROID = static_cast<core::EntityMask>(core::ComponentType::OTHER_TYPE) << 2u,

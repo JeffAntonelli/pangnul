@@ -102,7 +102,7 @@ namespace game
 
     void SimulationServer::SpawnNewPlayer(ClientId clientId, PlayerNumber playerNumber)
     {
-        core::LogDebug("[Server] Spawn new player");
+        //core::LogDebug("[Server] Spawn new player");
         auto spawnPlayer = std::make_unique<SpawnPlayerPacket>();
         spawnPlayer->packetType = PacketType::SPAWN_PLAYER;
         spawnPlayer->clientId = core::ConvertToBinary(clientId);

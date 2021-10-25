@@ -16,6 +16,20 @@ namespace game
         playerEntityMap_.fill(core::EntityManager::INVALID_ENTITY);
     }
 
+    void GameManager::InitBackground(core::Vec2f position) //core::Entity GameManager::InitBackground(core::Vec2f position) //Rajout.
+    {
+    	core::LogDebug("[GameManager] Init Background");
+
+        const core::Entity entity = entityManager_.CreateEntity();
+        
+
+        transformManager_.AddComponent(entity);
+        transformManager_.SetPosition(entity, position);
+        rollbackManager_.InitBackground(position);
+        //return entity;
+    }
+
+
     void GameManager::SpawnPlayer(PlayerNumber playerNumber, core::Vec2f position, core::degree_t rotation)
     {
         if (GetEntityFromPlayerNumber(playerNumber) != core::EntityManager::INVALID_ENTITY)
@@ -105,7 +119,12 @@ namespace game
     void ClientGameManager::Init()
     {
         //load textures
-        if (!bulletTexture_.loadFromFile("data/sprites/bullet.png"))
+        //Rajout texture de background.
+        if (!backgroundTexture_.loadFromFile("data/sprites/background.png"))
+        {
+            core::LogError("Could not load background");
+        }
+    	if (!bulletTexture_.loadFromFile("data/sprites/bullet.png"))
         {
             core::LogError("Could not load bullet sprite");
         }
@@ -119,7 +138,43 @@ namespace game
             core::LogError("Could not load font");
         }
         textRenderer_.setFont(font_);
-        starBackground_.Init();
+        //starBackground_.Init();
+        if (state_ & STARTED)  //Rajout.
+        {
+            rollbackManager_.SimulateToCurrentFrame();
+            for (core::Entity entity = 0; entity < entityManager_.GetEntitiesSize(); entity++)
+            {
+                if (entityManager_.HasComponent(entity,
+                    static_cast<core::EntityMask>(ComponentType::BACKGROUND) |
+                    static_cast<core::EntityMask>(core::ComponentType::SPRITE)));
+                {
+                    const auto& player = rollbackManager_.GetPlayerCharacterManager().GetComponent(entity);
+                }
+
+                if (entityManager_.HasComponent(entity, static_cast<core::EntityMask>(core::ComponentType::TRANSFORM)))
+                {
+                    transformManager_.SetPosition(entity, rollbackManager_.GetTransformManager().GetPosition(entity));
+                    transformManager_.SetScale(entity, rollbackManager_.GetTransformManager().GetScale(entity));
+                    transformManager_.SetRotation(entity, rollbackManager_.GetTransformManager().GetRotation(entity));
+                }
+            }
+        }
+    }
+
+    //InitBackground ici pour test(fonctionne pas).
+    //core::Entity ClientGameManager::InitBackground(core::Vec2f position) //Rajout.
+    void ClientGameManager::InitBackground(core::Vec2f position)
+    {
+    	GameManager::InitBackground(position);
+        const auto entity = entityManager_.CreateEntity();
+        //const auto entity = GameManager::InitBackground(position);// pour le core.
+
+        spriteManager_.AddComponent(entity);
+        spriteManager_.SetTexture(entity, backgroundTexture_);
+        spriteManager_.SetOrigin(entity, sf::Vector2f(backgroundTexture_.getSize()) / 2.0f);
+        auto sprite = spriteManager_.GetComponent(entity);
+        spriteManager_.SetComponent(entity, sprite);
+        //return entity; //pour le core.
     }
 
     void ClientGameManager::Update(sf::Time dt)
@@ -185,16 +240,16 @@ namespace game
         originalView_ = sf::View(visibleArea);
         spriteManager_.SetWindowSize(sf::Vector2f(windowsSize));
         spriteManager_.SetCenter(sf::Vector2f(windowsSize) / 2.0f);
+
     }
 
     void ClientGameManager::Draw(sf::RenderTarget& target)
     {
-        //UpdateCameraView(); //Enlever.
+        //UpdateCameraView(); //Enlever, la cam suivait le joueur.
         target.setView(originalView_);// Modifier.
 
-        starBackground_.Draw(target);
+        //starBackground_.Draw(target);
         spriteManager_.Draw(target);
-
         // Draw texts on screen
         //target.setView(originalView_);//Enlever.
         if (state_ & FINISHED)
@@ -295,8 +350,8 @@ namespace game
         spriteManager_.SetComponent(entity, sprite);
 
     }
-
-    core::Entity ClientGameManager::SpawnBullet(PlayerNumber playerNumber, core::Vec2f position, core::Vec2f velocity)
+    
+	core::Entity ClientGameManager::SpawnBullet(PlayerNumber playerNumber, core::Vec2f position, core::Vec2f velocity)
     {
         const auto entity = GameManager::SpawnBullet(playerNumber, position, velocity);
 

@@ -9,10 +9,10 @@ namespace game
 
     }
 
-    bool Box2Box(float r1x, float r1y, float r1w, float r1h, float r2x, float r2y, float r2w, float r2h)
+    bool Box2Box(float r1x, float r1y, float r1w, float r1h, float r2x, float r2y, float r2w, float r2h) //Intersect.
     {
         return r1x + r1w >= r2x &&    // r1 right edge past r2 left
-            r1x <= r2x + r2w &&    // r1 left edge past r2 right
+            r1x <= r2x + r2w &&    // r1 left edge past r2 right      Intersect.
             r1y + r1h >= r2y &&    // r1 top edge past r2 bottom
             r1y <= r2y + r2h;
     }

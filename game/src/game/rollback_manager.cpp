@@ -245,6 +245,11 @@ namespace game
         return state;
     }
 
+    void RollbackManager::InitBackground(core::Vec2f position) //Rajout.
+    {
+	    
+    }
+
     void RollbackManager::SpawnPlayer(PlayerNumber playerNumber, core::Entity entity, core::Vec2f position, core::degree_t rotation)
     {
         Body playerBody;
