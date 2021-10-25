@@ -17,6 +17,7 @@ namespace game
 	public:
 		explicit BackgroundManager(core::EntityManager& entityManager, GameManager& gameManager);
 		void FixedUpdate(sf::Time dt);
+		void Init();//Rajout.
 	private:
 		GameManager& gameManager_;
 	};

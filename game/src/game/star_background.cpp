@@ -3,6 +3,12 @@
 
 namespace game
 {
+	void game::BackgroundManager::Init()
+	{
+
+	}
+
+
 	BackgroundManager::BackgroundManager(core::EntityManager& entityManager, GameManager& gameManager) :
 		ComponentManager(entityManager),
 		gameManager_(gameManager)

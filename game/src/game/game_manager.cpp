@@ -16,7 +16,7 @@ namespace game
         playerEntityMap_.fill(core::EntityManager::INVALID_ENTITY);
     }
 
-    void GameManager::InitBackground(core::Vec2f position) //core::Entity GameManager::InitBackground(core::Vec2f position) //Rajout.
+     core::Entity GameManager::InitBackground(core::Vec2f position) //void GameManager::InitBackground(core::Vec2f position)//Rajout.
     {
     	core::LogDebug("[GameManager] Init Background");
 
@@ -26,7 +26,8 @@ namespace game
         transformManager_.AddComponent(entity);
         transformManager_.SetPosition(entity, position);
         rollbackManager_.InitBackground(position);
-        //return entity;
+
+        return entity;
     }
 
 
@@ -138,6 +139,7 @@ namespace game
             core::LogError("Could not load font");
         }
         textRenderer_.setFont(font_);
+        //backgroundManager_.Init();
         //starBackground_.Init();
         if (state_ & STARTED)  //Rajout.
         {
@@ -162,8 +164,8 @@ namespace game
     }
 
     //InitBackground ici pour test(fonctionne pas).
-    //core::Entity ClientGameManager::InitBackground(core::Vec2f position) //Rajout.
-    void ClientGameManager::InitBackground(core::Vec2f position)
+    core::Entity ClientGameManager::InitBackground(core::Vec2f position) //Rajout.
+    //void ClientGameManager::InitBackground(core::Vec2f position)
     {
     	GameManager::InitBackground(position);
         const auto entity = entityManager_.CreateEntity();
@@ -174,7 +176,7 @@ namespace game
         spriteManager_.SetOrigin(entity, sf::Vector2f(backgroundTexture_.getSize()) / 2.0f);
         auto sprite = spriteManager_.GetComponent(entity);
         spriteManager_.SetComponent(entity, sprite);
-        //return entity; //pour le core.
+        return entity; //pour le core.
     }
 
     void ClientGameManager::Update(sf::Time dt)

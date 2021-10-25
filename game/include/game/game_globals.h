@@ -39,18 +39,18 @@ namespace game
 
     constexpr std::array<core::Vec2f, std::max(4u, maxPlayerNmb)> spawnPositions
     {
-            core::Vec2f(0,1),
-            core::Vec2f(0,-1),
-            core::Vec2f(1,0),
-            core::Vec2f(-1,0),
+            core::Vec2f(0.5,-1),
+            core::Vec2f(-0.5,-1),
+            core::Vec2f(1,-1),
+            core::Vec2f(-1,-1),
     };
 
     const std::array<core::degree_t, std::max(4u, maxPlayerNmb)> spawnRotations
     {
         core::degree_t(0.0f),
-        core::degree_t(180.0f),
-        core::degree_t(-90.0f),
-        core::degree_t(90.0f)
+        core::degree_t(0.0f),
+        core::degree_t(0.0f),
+        core::degree_t(0.0f)
     };
 
     enum class ComponentType : core::EntityMask

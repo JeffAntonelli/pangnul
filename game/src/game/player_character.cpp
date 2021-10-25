@@ -36,7 +36,7 @@ namespace game
             //dir = dir.Rotate(-(playerBody.rotation + playerBody.angularVelocity * dt.asSeconds()));// Enlever.
             auto dir_l = core::Vec2f::left();
             
-            const auto acceleration = ((up ? -0.5f : 0.0f) + (up ? 0.5f : 0.0f)) * dir; //Enlever.
+            const auto acceleration = ((up ? -0.5f : 0.0f) + (up ? 0.5f : 0.0f)) * dir;
             const auto acceleration_l = ((left ? 0.0f : -2.0f) + (right ? 0.0f : +2.0f)) * dir_l;
 
             //playerBody.velocity += acceleration * dt.asSeconds(); // Enlever.
