@@ -252,7 +252,7 @@ namespace game
 
     void RollbackManager::SpawnPlayer(PlayerNumber playerNumber, core::Entity entity, core::Vec2f position, core::degree_t rotation)
     {
-        Body playerBody;
+        CircleBody playerBody;
         playerBody.position = position;
         //playerBody.rotation = rotation;
         Box playerBox;
@@ -329,7 +329,7 @@ namespace game
     {
         createdEntities_.push_back({ entity, testedFrame_ });
 
-        Body bulletBody;
+        CircleBody bulletBody;
         bulletBody.position = position;
         bulletBody.velocity = velocity;
         Box bulletBox;

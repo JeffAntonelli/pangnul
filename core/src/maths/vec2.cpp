@@ -14,7 +14,7 @@ namespace core
 
     Vec2f Vec2f::operator+(Vec2f v) const
     {
-        return {x + v.x, y + v.y};
+        return { x + v.x, y + v.y };
     }
 
     Vec2f& Vec2f::operator+=(Vec2f v)
@@ -26,7 +26,7 @@ namespace core
 
     Vec2f Vec2f::operator-(Vec2f v) const
     {
-        return {x - v.x, y - v.y};
+        return { x - v.x, y - v.y };
     }
 
     Vec2f& Vec2f::operator-=(Vec2f v)
@@ -38,61 +38,85 @@ namespace core
 
     Vec2f Vec2f::operator*(float f) const
     {
-        return {x * f, y * f};
+        return { x * f, y * f };
     }
 
     Vec2f Vec2f::operator/(float f) const
     {
-        return {x / f, y / f};
+        return { x / f, y / f };
     }
 
     Vec2f operator*(float f, Vec2f v)
     {
-        return v*f;
+        return v * f;
     }
 
     float Vec2f::GetMagnitude() const
-{
-    return std::sqrt(GetSqrMagnitude());
-}
+    {
+        return std::sqrt(GetSqrMagnitude());
+    }
 
-void Vec2f::Normalize()
-{
-    const auto magnitude = GetMagnitude();
-    x /= magnitude;
-    y /= magnitude;
-}
+    void Vec2f::Normalize()
+    {
+        const auto magnitude = GetMagnitude();
+        x /= magnitude;
+        y /= magnitude;
+    }
 
-Vec2f Vec2f::GetNormalized() const
-{
-    const auto magnitude = GetMagnitude();
-    return (*this) / magnitude;
-}
+    Vec2f Vec2f::GetNormalized() const
+    {
+        const auto magnitude = GetMagnitude();
+        return (*this) / magnitude;
+    }
 
-float Vec2f::GetSqrMagnitude() const
-{
-    return x * x + y * y;
-}
+    float Vec2f::GetSqrMagnitude() const
+    {
+        return x * x + y * y;
+    }
 
-Vec2f Vec2f::Rotate(degree_t rotation) const
-{
+    Vec2f Vec2f::Rotate(degree_t rotation) const
+    {
 
-    const auto cs = Cos(rotation);
-    const auto sn = Sin(rotation);
+        const auto cs = Cos(rotation);
+        const auto sn = Sin(rotation);
 
-    Vec2f v;
-    v.x = x * cs - y * sn;
-    v.y = x * sn + y * cs;
-    return v;
-}
+        Vec2f v;
+        v.x = x * cs - y * sn;
+        v.y = x * sn + y * cs;
+        return v;
+    }
 
-float Vec2f::Dot(Vec2f a, Vec2f b)
-{
-    return a.x * b.x + a.y * b.y;
-}
+    float Vec2f::Dot(Vec2f a, Vec2f b)
+    {
+        return a.x * b.x + a.y * b.y;
+    }
 
-Vec2f Vec2f::Lerp(Vec2f a, Vec2f b, float t)
-{
-    return a + (b - a) * t;
-}
+    Vec2f Vec2f::Lerp(Vec2f a, Vec2f b, float t)
+    {
+        return a + (b - a) * t;
+    }
+
+    Vec2f inv(const Vec2f& v1, const Vec2f& v2) // Rajout.
+    {
+        return Vec2f{ -v2.y + v1.y, -v2.x + v1.x };
+    }
+
+    Vec2f ComputeNormal(core::Vec2f center, core::Vec2f i) // Rajout.
+    {
+        return(i - center).GetNormalized();
+    }
+
+    Vec2f ComputeTangent(core::Vec2f center, core::Vec2f i) // Rajout.
+    {
+        const Vec2f tangent = ComputeNormal(center, i);
+        return{ tangent.y, -tangent.x };
+    }
+
+    float CalculateDistance(Vec2f a, Vec2f b)
+    {
+        const float dx = b.x - a.x;
+        const float dy = b.y - a.y;
+        return std::sqrt(dx * dx + dy + dy);
+    }
+
 }

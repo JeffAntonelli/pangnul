@@ -22,7 +22,7 @@ class GameManager;
     struct DestroyedBullet
     {
         Bullet bullet;
-        Body body;
+        CircleBody body;
         Frame destroyedFrame = 0;
     };
 
