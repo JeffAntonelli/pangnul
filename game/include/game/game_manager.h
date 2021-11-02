@@ -8,7 +8,6 @@
 
 #include "game_globals.h"
 #include "rollback_manager.h"
-#include "background.h"
 #include "engine/entity.h"
 #include "graphics/graphics.h"
 #include "graphics/sprite.h"
@@ -27,9 +26,7 @@ namespace game
     {
     public:
         GameManager();
-        virtual core::Entity InitBackground(core::Vec2f position);//Rajout.
     	virtual ~GameManager() = default;
-        //virtual void InitBackground(core::Vec2f position);// Rajout.
         virtual void SpawnPlayer(PlayerNumber playerNumber, core::Vec2f position, core::degree_t rotation);
         virtual core::Entity SpawnBullet(PlayerNumber, core::Vec2f position, core::Vec2f velocity);
         virtual void DestroyBullet(core::Entity entity);
@@ -68,8 +65,6 @@ namespace game
         };
         explicit ClientGameManager(PacketSenderInterface& packetSenderInterface);
         void StartGame(unsigned long long int startingTime);
-        //void InitBackground(core::Vec2f position);// Test void.
-        core::Entity InitBackground(core::Vec2f position) override;// Rajout.
     	void Init() override;
     	void Update(sf::Time dt) override;
         void Destroy() override;
@@ -96,18 +91,13 @@ namespace game
         sf::View cameraView_;
         PlayerNumber clientPlayer_ = INVALID_PLAYER;
         core::SpriteManager spriteManager_;
-        //StarBackground starBackground_; //Enlever en meme temps que starBackground.h et .cpp
-        //BackgroundManager backgroundManager_;// Rajout.
         float fixedTimer_ = 0.0f;
         unsigned long long startingTime_ = 0;
         std::uint32_t state_ = 0;
 
-        sf::Texture backgroundTexture_;// Rajout.
-        sf::Texture backtexture_;// Allo!
         sf::Texture shipTexture_;
         sf::Texture bulletTexture_;
         sf::Font font_;
-        sf::Sprite sprite_;//Test.
 
         sf::Text textRenderer_;
     };

@@ -228,26 +228,8 @@ namespace game
         {
             state += velocityPtr[i];
         }
-        //Adding rotation
-        //const auto angle = playerBody.rotation.value();
-        //const auto* anglePtr = reinterpret_cast<const PhysicsState*>(&angle);
-        /*for (size_t i = 0; i < sizeof(float) / sizeof(PhysicsState); i++)
-        {
-            state += anglePtr[i];
-        }*/
-        //Adding angular Velocity
-        //const auto angularVelocity = playerBody.angularVelocity.value();
-        //const auto* angularVelPtr = reinterpret_cast<const PhysicsState*>(&angularVelocity);
-       /* for (size_t i = 0; i < sizeof(float) / sizeof(PhysicsState); i++)
-        {
-            state += angularVelPtr[i];
-        }*/
+       
         return state;
-    }
-
-    void RollbackManager::InitBackground(core::Vec2f position) //Rajout.
-    {
-	    
     }
 
     void RollbackManager::SpawnPlayer(PlayerNumber playerNumber, core::Entity entity, core::Vec2f position, core::degree_t rotation)
