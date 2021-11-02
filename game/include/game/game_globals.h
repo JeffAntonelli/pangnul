@@ -18,8 +18,6 @@ namespace game
 
     const std::uint32_t maxPlayerNmb = 2;
     const short playerHealth = 5;
-    const float playerSpeed = 1.0f;
-    const core::degree_t playerAngularSpeed = core::degree_t(90.0f);
     const float playerShootingPeriod = 0.3f;
     const float bulletSpeed = 2.0f;
     const float bulletScale = 0.2f;
@@ -39,8 +37,8 @@ namespace game
 
     constexpr std::array<core::Vec2f, std::max(4u, maxPlayerNmb)> spawnPositions
     {
-            core::Vec2f(0.5,-1),
-            core::Vec2f(-0.5,-1),
+            core::Vec2f(0.5,-2),
+            core::Vec2f(-0.5,-2),
             core::Vec2f(1,-1),
             core::Vec2f(-1,-1),
     };

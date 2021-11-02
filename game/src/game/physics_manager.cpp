@@ -9,14 +9,6 @@ namespace game
 
     }
 
-    bool Box2Box(float r1x, float r1y, float r1w, float r1h, float r2x, float r2y, float r2w, float r2h) //Intersect.
-    {
-        return r1x + r1w >= r2x &&    // r1 right edge past r2 left
-            r1x <= r2x + r2w &&    // r1 left edge past r2 right      Intersect.
-            r1y + r1h >= r2y &&    // r1 top edge past r2 bottom
-            r1y <= r2y + r2h;
-    }
-
     void PhysicsManager::FixedUpdate(sf::Time dt)
     {
         for (core::Entity entity = 0; entity < entityManager_.GetEntitiesSize(); entity++)
@@ -33,24 +25,24 @@ namespace game
             body.velocity += Gravity * dt.asSeconds();
             body.position += body.velocity * dt.asSeconds();
 
-            if (body.position.x <= min_pos.x + core::radius)
+            if (body.position.x <= min_pos.x + CircleBody::radius)
             {
-                body.position.x = min_pos.x + core::radius;
+                body.position.x = min_pos.x + CircleBody::radius;
                 body.velocity.x = -CircleBody::Rebound * body.velocity.x;
             }
-            if (body.position.y <= min_pos.y + core::radius)           
+            if (body.position.y <= min_pos.y + CircleBody::radius)           
             {
-                body.position.y = min_pos.y + core::radius;
+                body.position.y = min_pos.y + CircleBody::radius;
                 body.velocity.y = -CircleBody::Rebound * body.velocity.y;
             }
-            if (body.position.x >= max_pos.x - core::radius)
+            if (body.position.x >= max_pos.x - CircleBody::radius)
             {
-                body.position.x = max_pos.x - core::radius;
+                body.position.x = max_pos.x - CircleBody::radius;
                 body.velocity.x = -CircleBody::Rebound * body.velocity.x;
             }
-            if (body.position.y >= max_pos.y - core::radius)
+            if (body.position.y >= max_pos.y - CircleBody::radius)
             {
-                body.position.y = max_pos.y - core::radius;
+                body.position.y = max_pos.y - CircleBody::radius;
                 body.velocity.y = -CircleBody::Rebound * body.velocity.y;
             }
 
@@ -87,19 +79,6 @@ namespace game
 
                 const CircleBody& body2 = bodyManager_.GetComponent(otherEntity);
                 const Box& box2 = boxManager_.GetComponent(otherEntity);
-
-              /*  if (Box2Box(
-                    body1.position.x - box1.extends.x,
-                    body1.position.y - box1.extends.y,
-                    box1.extends.x * 2.0f,
-                    box1.extends.y * 2.0f,
-                    body2.position.x - box2.extends.x,
-                    body2.position.y - box2.extends.y,
-                    box2.extends.x * 2.0f,
-                    box2.extends.y * 2.0f))
-                {
-                    onTriggerAction_.Execute(entity, otherEntity);
-                }*/
 
             }
         }
@@ -149,7 +128,7 @@ namespace game
 
     bool PhysicsManager::BodyContact(CircleBody body1, CircleBody body2)
     {
-        return CircleBody::CalculateDistance(body1, body2) < (core::radius + core::radius);
+        return CircleBody::CalculateDistance(body1, body2) < (CircleBody::radius  + CircleBody::radius);
     }
 
     void PhysicsManager::ResolveBodyContact(CircleBody& body1, CircleBody& body2)
@@ -164,30 +143,30 @@ namespace game
             ComputeTangent(body2.position, ContactPoint(body1, body2)).y * body2.velocity.y;
 
         body1.velocity.x = ComputeNormal(body1.position, ContactPoint(body1, body2)).x * v2n + ComputeTangent(
-            body1.position, ContactPoint(body1, body2)).x * v1t * -core::forceRestitution;
+            body1.position, ContactPoint(body1, body2)).x * v1t * -CircleBody::Rebound;
         body1.velocity.y = ComputeNormal(body1.position, ContactPoint(body1, body2)).y * v2n + ComputeTangent(
-            body1.position, ContactPoint(body1, body2)).y * v1t * -core::forceRestitution;
+            body1.position, ContactPoint(body1, body2)).y * v1t * -CircleBody::Rebound;
         body2.velocity.x = ComputeNormal(body2.position, ContactPoint(body1, body2)).x * v1n + ComputeTangent(
-            body2.position, ContactPoint(body1, body2)).x * v2t * -core::forceRestitution;
+            body2.position, ContactPoint(body1, body2)).x * v2t * -CircleBody::Rebound;
         body2.velocity.y = ComputeNormal(body2.position, ContactPoint(body1, body2)).y * v1n + ComputeTangent(
-            body2.position, ContactPoint(body1, body2)).y * v2t * -core::forceRestitution;
+            body2.position, ContactPoint(body1, body2)).y * v2t * -CircleBody::Rebound;
 
 
         body1.position = RelocatedCenter(body1, ContactPoint(body1, body2));
         body2.position = RelocatedCenter(body2, ContactPoint(body1, body2));
-        body1.velocity = body1.velocity * -core::forceRestitution;
-        body2.velocity = body2.velocity * -core::forceRestitution;
+        body1.velocity = body1.velocity * -CircleBody::Rebound;
+        body2.velocity = body2.velocity * -CircleBody::Rebound;
     }
 
     core::Vec2f PhysicsManager::ContactPoint(const CircleBody& body1, const CircleBody& body2) const
     {
-        double ratio = (core::radius) / ((core::radius)+(core::radius));
+        double ratio = (CircleBody::radius) / ((CircleBody::radius)+(CircleBody::radius));
         return (body2.position - body1.position) * ratio + body1.position;
     }
 
     core::Vec2f PhysicsManager::RelocatedCenter(const CircleBody& body, const core::Vec2f& v)
     {
-        double ratio = (core::radius) / (body.position - v).GetMagnitude();
+        double ratio = (CircleBody::radius) / (body.position - v).GetMagnitude();
         return (body.position - v) * ratio + v;
     }
 

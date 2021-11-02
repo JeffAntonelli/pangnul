@@ -1,4 +1,4 @@
-#include <game/star_background.h>
+#include <game/background.h>
 #include <game/game_manager.h>
 
 namespace game

@@ -20,11 +20,10 @@ namespace game
     {
         core::Vec2f position = core::Vec2f::zero();
         core::Vec2f velocity = core::Vec2f::zero();
-        //core::degree_t angularVelocity = core::degree_t(0.0f);
-        //core::degree_t rotation = core::degree_t(0.0f);
         BodyType bodyType = BodyType::DYNAMIC;
-        static float CalculateDistance(CircleBody body1, CircleBody body2);// Rajout.
-        constexpr static float Rebound = 0.99f;
+    	static float CalculateDistance(CircleBody body1, CircleBody body2);
+        static constexpr float Rebound = 0.99f;
+        static constexpr float radius = 0.17f;
     };
 
     struct Box
@@ -71,10 +70,10 @@ namespace game
         BodyManager bodyManager_;
         BoxManager boxManager_;
         core::Action<core::Entity, core::Entity> onTriggerAction_;
-        bool BodyContact(CircleBody body1, CircleBody body2);// Rajout.
-        void ResolveBodyContact(CircleBody& body1, CircleBody& body2);// Rajout.
-        core::Vec2f ContactPoint(const CircleBody& rb1, const CircleBody& rb2) const;// Rajout.
-        core::Vec2f RelocatedCenter(const CircleBody& body, const core::Vec2f& v);// Rajout.
+        bool BodyContact(CircleBody body1, CircleBody body2);
+        void ResolveBodyContact(CircleBody& body1, CircleBody& body2);
+        core::Vec2f ContactPoint(const CircleBody& rb1, const CircleBody& rb2) const;
+        core::Vec2f RelocatedCenter(const CircleBody& body, const core::Vec2f& v);
     };
 
 }

@@ -96,17 +96,17 @@ namespace core
         return a + (b - a) * t;
     }
 
-    Vec2f inv(const Vec2f& v1, const Vec2f& v2) // Rajout.
+    Vec2f inv(const Vec2f& v1, const Vec2f& v2) 
     {
         return Vec2f{ -v2.y + v1.y, -v2.x + v1.x };
     }
 
-    Vec2f ComputeNormal(core::Vec2f center, core::Vec2f i) // Rajout.
+    Vec2f ComputeNormal(core::Vec2f center, core::Vec2f i) 
     {
         return(i - center).GetNormalized();
     }
 
-    Vec2f ComputeTangent(core::Vec2f center, core::Vec2f i) // Rajout.
+    Vec2f ComputeTangent(core::Vec2f center, core::Vec2f i) 
     {
         const Vec2f tangent = ComputeNormal(center, i);
         return{ tangent.y, -tangent.x };

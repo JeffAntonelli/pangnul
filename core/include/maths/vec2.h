@@ -33,8 +33,8 @@ namespace core
         Vec2f& operator-=(Vec2f v);
         Vec2f operator*(float f) const;
         Vec2f operator/(float f) const;
-        bool operator== (const core::Vec2f& pos) const = default; // Rajout.
-        //Vec2f Normalize() const; // Rajout. y a deja.
+        bool operator== (const core::Vec2f& pos) const = default; 
+        
 
         static constexpr Vec2f zero() { return Vec2f(); }
         static constexpr Vec2f one() { return Vec2f(1, 1); }
@@ -44,10 +44,10 @@ namespace core
         static constexpr Vec2f right() { return Vec2f(1, 0); }
     };
 
-    float CalculateDistance(Vec2f a, Vec2f b); // Rajout.
+    float CalculateDistance(Vec2f a, Vec2f b); 
     Vec2f operator*(float f, Vec2f v);
-    Vec2f inv(const core::Vec2f& v1, const core::Vec2f& v2); // Rajout.
-    Vec2f ComputeNormal(core::Vec2f center, core::Vec2f i); // Rajout.
-    Vec2f ComputeTangent(core::Vec2f center, core::Vec2f i); // Rajout.
+    Vec2f inv(const core::Vec2f& v1, const core::Vec2f& v2); 
+    Vec2f ComputeNormal(core::Vec2f center, core::Vec2f i); 
+    Vec2f ComputeTangent(core::Vec2f center, core::Vec2f i); 
 
 }
