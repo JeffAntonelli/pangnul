@@ -16,7 +16,7 @@ namespace game
         playerEntityMap_.fill(core::EntityManager::INVALID_ENTITY);
     }
 
-    void GameManager::SpawnPlayer(PlayerNumber playerNumber, core::Vec2f position, core::degree_t rotation)
+    void GameManager::SpawnPlayer(PlayerNumber playerNumber, core::Vec2f position)
     {
         if (GetEntityFromPlayerNumber(playerNumber) != core::EntityManager::INVALID_ENTITY)
             return;
@@ -26,8 +26,7 @@ namespace game
 
         transformManager_.AddComponent(entity);
         transformManager_.SetPosition(entity, position);
-        transformManager_.SetRotation(entity, rotation);
-        rollbackManager_.SpawnPlayer(playerNumber, entity, position, core::degree_t(rotation));
+        rollbackManager_.SpawnPlayer(playerNumber, entity, position);
     }
 
     core::Entity GameManager::GetEntityFromPlayerNumber(PlayerNumber playerNumber) const
@@ -53,6 +52,18 @@ namespace game
         rollbackManager_.ValidateFrame(newValidateFrame);
     }
 
+    core::Entity GameManager::SpawnBalloon(core::Vec2f position, core::Vec2f velocity)
+    {
+        const core::Entity entity = entityManager_.CreateEntity();
+
+        transformManager_.AddComponent(entity);
+        transformManager_.SetPosition(entity, position);
+        transformManager_.SetScale(entity, core::Vec2f::one() * balloonScale);
+        rollbackManager_.SpawnBalloon(entity, position, velocity);
+        return entity;
+    }
+
+
     core::Entity GameManager::SpawnBullet(PlayerNumber playerNumber, core::Vec2f position, core::Vec2f velocity)
     {
         const core::Entity entity = entityManager_.CreateEntity();
@@ -60,7 +71,6 @@ namespace game
         transformManager_.AddComponent(entity);
         transformManager_.SetPosition(entity, position);
         transformManager_.SetScale(entity, core::Vec2f::one() * bulletScale);
-        transformManager_.SetRotation(entity, core::degree_t(0.0f));
         rollbackManager_.SpawnBullet(playerNumber, entity, position, velocity);
         return entity;
     }
@@ -112,6 +122,10 @@ namespace game
         if (!shipTexture_.loadFromFile("data/sprites/ship.png"))
         {
             core::LogError("Could not load ship sprite");
+        }
+        if (!balloonTexture_.loadFromFile("data/sprites/balloon.png"))
+        {
+            core::LogError("Could not load balloon sprite");
         }
         //load fonts
         if (!font_.loadFromFile("data/fonts/8-bit-hud.ttf"))
@@ -277,11 +291,11 @@ namespace game
         clientPlayer_ = clientPlayer;
     }
 
-    void ClientGameManager::SpawnPlayer(PlayerNumber playerNumber, core::Vec2f position, core::degree_t rotation)
+    void ClientGameManager::SpawnPlayer(PlayerNumber playerNumber, core::Vec2f position)
     {
         core::LogDebug(fmt::format("Spawn player: {}", playerNumber));
 
-        GameManager::SpawnPlayer(playerNumber, position, rotation);
+        GameManager::SpawnPlayer(playerNumber, position);
         const auto entity = GetEntityFromPlayerNumber(playerNumber);
         spriteManager_.AddComponent(entity);
         spriteManager_.SetTexture(entity, shipTexture_);
@@ -291,7 +305,23 @@ namespace game
         spriteManager_.SetComponent(entity, sprite);
 
     }
-    
+
+
+    core::Entity ClientGameManager::SpawnBalloon(core::Vec2f position, core::Vec2f velocity)
+    {
+        const auto entity = GameManager::SpawnBalloon(position, velocity);
+
+        spriteManager_.AddComponent(entity);
+        spriteManager_.SetTexture(entity, balloonTexture_);
+        spriteManager_.SetOrigin(entity, sf::Vector2f(balloonTexture_.getSize()) / 2.0f);
+        auto sprite = spriteManager_.GetComponent(entity);
+        /*sprite.setColor(playerColors[playerNumber]);*/
+        spriteManager_.SetComponent(entity, sprite);
+        return entity;
+
+    }
+
+
 	core::Entity ClientGameManager::SpawnBullet(PlayerNumber playerNumber, core::Vec2f position, core::Vec2f velocity)
     {
         const auto entity = GameManager::SpawnBullet(playerNumber, position, velocity);
@@ -431,7 +461,7 @@ namespace game
             return;
         }
 
-        cameraView_ = originalView_;
+        /*cameraView_ = originalView_;
         const sf::Vector2f extends{ cameraView_.getSize() / 2.0f / PixelPerUnit };
         float currentZoom = 1.0f;
         constexpr float margin = 1.0f;
@@ -462,8 +492,9 @@ namespace game
                     }
                 }
             }
-        }
-        cameraView_.zoom(currentZoom);
+        }*/
+        //cameraView_.zoom(currentZoom);
+        cameraView_ = originalView_;
 
     }
 }

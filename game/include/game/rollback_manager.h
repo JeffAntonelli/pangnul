@@ -1,4 +1,6 @@
 #pragma once
+
+#include "balloon_manager.h"
 #include "bullet_manager.h"
 #include "game_globals.h"
 #include "physics_manager.h"
@@ -45,14 +47,16 @@ class GameManager;
          */
         void ConfirmFrame(Frame newValidatedFrame, const std::array<PhysicsState, maxPlayerNmb>& serverPhysicsState);
         [[nodiscard]] PhysicsState GetValidatePhysicsState(PlayerNumber playerNumber) const;
+        [[nodiscard]] PhysicsState GetValidatePhysicsStateBalloon() const;
         [[nodiscard]] Frame GetLastValidateFrame() const { return lastValidateFrame_; }
         [[nodiscard]] Frame GetLastReceivedFrame(PlayerNumber playerNumber) const { return lastReceivedFrame_[playerNumber]; }
         [[nodiscard]] Frame GetCurrentFrame() const { return currentFrame_; }
         [[nodiscard]] const core::TransformManager& GetTransformManager() const { return currentTransformManager_; }
         [[nodiscard]] const PlayerCharacterManager& GetPlayerCharacterManager() const { return currentPlayerManager_; }
         void InitBackground(core::Vec2f position);
-        void SpawnPlayer(PlayerNumber playerNumber, core::Entity entity, core::Vec2f position, core::degree_t rotation);
+        void SpawnPlayer(PlayerNumber playerNumber, core::Entity entity, core::Vec2f position);
         void SpawnBullet(PlayerNumber playerNumber, core::Entity entity, core::Vec2f position, core::Vec2f velocity);
+        void SpawnBalloon(core::Entity entity, core::Vec2f position, core::Vec2f velocity);
         /**
          * \brief This function does not destroy the entity definitely, but puts the DESTROY flag
          */
@@ -69,18 +73,22 @@ class GameManager;
         core::TransformManager currentTransformManager_;
         PhysicsManager currentPhysicsManager_;
         PlayerCharacterManager currentPlayerManager_;
+        BalloonManager currentBalloonManager_;
         BulletManager currentBulletManager_;
         /**
          * Last Validate (confirm frame) Component Managers used for rollback
          */
         PhysicsManager lastValidatePhysicsManager_;
         PlayerCharacterManager lastValidatePlayerManager_;
+        BalloonManager lastValidateBalloonManager_;
         BulletManager lastValidateBulletManager_;
 
 
         Frame lastValidateFrame_ = 0; //Confirm frame
         Frame currentFrame_ = 0;
         Frame testedFrame_ = 0;
+
+        core::Entity balloonEntity_ = core::EntityManager::INVALID_ENTITY;
 
         static constexpr std::size_t windowBufferSize = 5 * 50; // 5 seconds of frame at 50 fps
         std::array<std::uint32_t, maxPlayerNmb> lastReceivedFrame_{};

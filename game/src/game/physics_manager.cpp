@@ -4,7 +4,9 @@ namespace game
 {
 
     PhysicsManager::PhysicsManager(core::EntityManager& entityManager) :
-        bodyManager_(entityManager), boxManager_(entityManager), entityManager_(entityManager)
+        circleManager_(entityManager),
+		boxManager_(entityManager),
+		entityManager_(entityManager)
     {
 
     }
@@ -15,7 +17,7 @@ namespace game
         {
             if (!entityManager_.HasComponent(entity, static_cast<core::EntityMask>(core::ComponentType::BODY2D)))
                 continue;
-            auto body = bodyManager_.GetComponent(entity);
+            auto body = circleManager_.GetComponent(entity);
             core::Vec2f Gravity = { 0, -9.81 };
             core::Vec2f max_pos = { (core::windowSize.x / core::pixelPerMeter / 2),
                 (core::windowSize.y / core::pixelPerMeter / 2) };
@@ -25,37 +27,37 @@ namespace game
             body.velocity += Gravity * dt.asSeconds();
             body.position += body.velocity * dt.asSeconds();
 
-            if (body.position.x <= min_pos.x + CircleBody::radius)
+            if (body.position.x <= min_pos.x + body.radius)
             {
-                body.position.x = min_pos.x + CircleBody::radius;
-                body.velocity.x = -CircleBody::Rebound * body.velocity.x;
+                body.position.x = min_pos.x + body.radius;
+                body.velocity.x = -body.rebound * body.velocity.x;
             }
-            if (body.position.y <= min_pos.y + CircleBody::radius)           
+            if (body.position.y <= min_pos.y + body.radius)           
             {
-                body.position.y = min_pos.y + CircleBody::radius;
-                body.velocity.y = -CircleBody::Rebound * body.velocity.y;
+                body.position.y = min_pos.y + body.radius;
+                body.velocity.y = -body.rebound * body.velocity.y;
             }
-            if (body.position.x >= max_pos.x - CircleBody::radius)
+            if (body.position.x >= max_pos.x - body.radius)
             {
-                body.position.x = max_pos.x - CircleBody::radius;
-                body.velocity.x = -CircleBody::Rebound * body.velocity.x;
+                body.position.x = max_pos.x - body.radius;
+                body.velocity.x = -body.rebound * body.velocity.x;
             }
             if (body.position.y >= max_pos.y - CircleBody::radius)
             {
                 body.position.y = max_pos.y - CircleBody::radius;
-                body.velocity.y = -CircleBody::Rebound * body.velocity.y;
+                body.velocity.y = -body.rebound * body.velocity.y;
             }
 
-            bodyManager_.SetComponent(entity, body);
+            circleManager_.SetComponent(entity, body);
 
-            auto body1 = bodyManager_.GetComponent(0);
-            auto body2 = bodyManager_.GetComponent(1);
+            auto body1 = circleManager_.GetComponent(0);
+            auto body2 = circleManager_.GetComponent(1);
 
             if(BodyContact(body1, body2))
             {
                 ResolveBodyContact(body1, body2);
-                bodyManager_.SetComponent(0, body1);
-                bodyManager_.SetComponent(1, body2);
+                circleManager_.SetComponent(0, body1);
+                circleManager_.SetComponent(1, body2);
             }
 
         }
@@ -74,11 +76,10 @@ namespace game
                                                  static_cast<core::EntityMask>(core::ComponentType::BODY2D) | static_cast<core::EntityMask>(core::ComponentType::BOX_COLLIDER2D)) ||
                     entityManager_.HasComponent(entity, static_cast<core::EntityMask>(ComponentType::DESTROYED)))
                     continue;
-                const CircleBody& body1 = bodyManager_.GetComponent(entity);
-                const Box& box1 = boxManager_.GetComponent(entity);
-
-                const CircleBody& body2 = bodyManager_.GetComponent(otherEntity);
-                const Box& box2 = boxManager_.GetComponent(otherEntity);
+                const CircleBody& body1 = circleManager_.GetComponent(entity);
+                
+            	const CircleBody& body2 = circleManager_.GetComponent(otherEntity);
+                
 
             }
         }
@@ -86,17 +87,17 @@ namespace game
 
     void PhysicsManager::SetBody(core::Entity entity, const CircleBody& body)
     {
-        bodyManager_.SetComponent(entity, body);
+        circleManager_.SetComponent(entity, body);
     }
 
     const CircleBody& PhysicsManager::GetBody(core::Entity entity) const
     {
-        return bodyManager_.GetComponent(entity);
+        return circleManager_.GetComponent(entity);
     }
 
     void PhysicsManager::AddBody(core::Entity entity)
     {
-        bodyManager_.AddComponent(entity);
+        circleManager_.AddComponent(entity);
     }
 
     void PhysicsManager::AddBox(core::Entity entity)
@@ -122,7 +123,7 @@ namespace game
 
     void PhysicsManager::CopyAllComponents(const PhysicsManager& physicsManager)
     {
-        bodyManager_.CopyAllComponents(physicsManager.bodyManager_.GetAllComponents());
+        circleManager_.CopyAllComponents(physicsManager.circleManager_.GetAllComponents());
         boxManager_.CopyAllComponents(physicsManager.boxManager_.GetAllComponents());
     }
 
@@ -143,19 +144,19 @@ namespace game
             ComputeTangent(body2.position, ContactPoint(body1, body2)).y * body2.velocity.y;
 
         body1.velocity.x = ComputeNormal(body1.position, ContactPoint(body1, body2)).x * v2n + ComputeTangent(
-            body1.position, ContactPoint(body1, body2)).x * v1t * -CircleBody::Rebound;
+            body1.position, ContactPoint(body1, body2)).x * v1t * -body1.rebound;
         body1.velocity.y = ComputeNormal(body1.position, ContactPoint(body1, body2)).y * v2n + ComputeTangent(
-            body1.position, ContactPoint(body1, body2)).y * v1t * -CircleBody::Rebound;
+            body1.position, ContactPoint(body1, body2)).y * v1t * -body1.rebound;
         body2.velocity.x = ComputeNormal(body2.position, ContactPoint(body1, body2)).x * v1n + ComputeTangent(
-            body2.position, ContactPoint(body1, body2)).x * v2t * -CircleBody::Rebound;
+            body2.position, ContactPoint(body1, body2)).x * v2t * -body2.rebound;
         body2.velocity.y = ComputeNormal(body2.position, ContactPoint(body1, body2)).y * v1n + ComputeTangent(
-            body2.position, ContactPoint(body1, body2)).y * v2t * -CircleBody::Rebound;
+            body2.position, ContactPoint(body1, body2)).y * v2t * -body2.rebound;
 
 
         body1.position = RelocatedCenter(body1, ContactPoint(body1, body2));
         body2.position = RelocatedCenter(body2, ContactPoint(body1, body2));
-        body1.velocity = body1.velocity * -CircleBody::Rebound;
-        body2.velocity = body2.velocity * -CircleBody::Rebound;
+        body1.velocity = body1.velocity * -body1.rebound;
+        body2.velocity = body2.velocity * -body2.rebound;
     }
 
     core::Vec2f PhysicsManager::ContactPoint(const CircleBody& body1, const CircleBody& body2) const

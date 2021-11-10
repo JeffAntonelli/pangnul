@@ -174,6 +174,7 @@ namespace game
     {
         std::array<std::uint8_t, sizeof(Frame)> newValidateFrame{};
         std::array<std::uint8_t, sizeof(PhysicsState)* maxPlayerNmb> physicsState{};
+        std::array<std::uint8_t, sizeof(PhysicsState)> physicsBalloonState{};
     };
 
     inline sf::Packet& operator<<(sf::Packet& packet, const ValidateFramePacket& validateFramePacket)

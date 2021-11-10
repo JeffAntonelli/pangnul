@@ -29,6 +29,7 @@ namespace game
 
             if (lastPlayerNumber_ == maxPlayerNmb)
             {
+                gameManager_.SpawnBalloon({ .0f, .0f }, { .0f, .0f });
                 auto startGamePacket = std::make_unique<StartGamePacket>();
                 startGamePacket->packetType = PacketType::START_GAME;
                 using namespace std::chrono;
@@ -89,6 +90,7 @@ namespace game
                         validatePacket->physicsState[i * sizeof(PhysicsState) + j] = statePtr[j];
                     }
                 }
+                auto physicsBalloonState = gameManager_.GetRollbackManager().GetValidatePhysicsStateBalloon();
                 SendUnreliablePacket(std::move(validatePacket));
                 const auto winner = gameManager_.CheckWinner();
                 if (winner != INVALID_PLAYER)

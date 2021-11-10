@@ -1,3 +1,4 @@
+#include <array>
 #include <game/rollback_manager.h>
 #include <game/game_manager.h>
 #include <cassert>
@@ -13,7 +14,8 @@ namespace game
         currentPhysicsManager_(entityManager), currentPlayerManager_(entityManager, currentPhysicsManager_, gameManager_),
         currentBulletManager_(entityManager, gameManager),
         lastValidatePhysicsManager_(entityManager),
-        lastValidatePlayerManager_(entityManager, lastValidatePhysicsManager_, gameManager_), lastValidateBulletManager_(entityManager, gameManager)
+        lastValidatePlayerManager_(entityManager, lastValidatePhysicsManager_, gameManager_), lastValidateBulletManager_(entityManager, gameManager),
+		currentBalloonManager_(entityManager, gameManager, currentPhysicsManager_), lastValidateBalloonManager_(entityManager, gameManager, currentPhysicsManager_)
     {
         for (auto& input : inputs_)
         {
@@ -232,11 +234,36 @@ namespace game
         return state;
     }
 
-    void RollbackManager::SpawnPlayer(PlayerNumber playerNumber, core::Entity entity, core::Vec2f position, core::degree_t rotation)
+    PhysicsState RollbackManager::GetValidatePhysicsStateBalloon() const
+    {
+        PhysicsState state = 0;
+
+        const auto& balloonBody = lastValidatePhysicsManager_.GetBody(balloonEntity_);
+
+        const auto pos = balloonBody.position;
+
+        const auto* posPtr = reinterpret_cast<const PhysicsState*>(&pos);
+
+        // Adding position.
+        for (size_t i = 0; i < sizeof(core::Vec2f) / sizeof(PhysicsState); i++)
+        {
+            state += posPtr[i];
+        }
+
+        // Velocity.
+        const auto velocity = balloonBody.velocity;
+        const auto* velocityPtr = reinterpret_cast<const PhysicsState*>(&velocity);
+        for (size_t i = 0; i < sizeof(core::Vec2f) / sizeof(PhysicsState); i++)
+        {
+            state += velocityPtr[i];
+        }
+        return state;
+    }
+
+    void RollbackManager::SpawnPlayer(PlayerNumber playerNumber, core::Entity entity, core::Vec2f position)
     {
         CircleBody playerBody;
         playerBody.position = position;
-        //playerBody.rotation = rotation;
         Box playerBox;
         playerBox.extends = core::Vec2f::one() * 0.5f;
 
@@ -261,7 +288,7 @@ namespace game
 
         currentTransformManager_.AddComponent(entity);
         currentTransformManager_.SetPosition(entity, position);
-        currentTransformManager_.SetRotation(entity, rotation);
+       
     }
 
     PlayerInput RollbackManager::GetInputAtFrame(PlayerNumber playerNumber, Frame frame)
@@ -306,6 +333,35 @@ namespace game
             ManageCollision(player, entity2, bullet, entity1);
         }
     }
+
+    void RollbackManager::SpawnBalloon(core::Entity entity, core::Vec2f position, core::Vec2f velocity)
+    {
+        balloonEntity_ = entity;
+        CircleBody balloonBody;
+        balloonBody.position = position;
+        balloonBody.velocity = velocity;
+        balloonBody.rebound = 1.0f;
+
+        Balloon balloon;
+
+        currentBalloonManager_.AddComponent(entity);
+        currentBalloonManager_.SetComponent(entity, balloon);
+
+        currentPhysicsManager_.AddBody(entity);
+        currentPhysicsManager_.SetBody(entity, balloonBody);
+
+        lastValidateBalloonManager_.AddComponent(entity);
+        lastValidateBalloonManager_.SetComponent(entity, balloon);
+
+        lastValidatePhysicsManager_.AddBody(entity);
+        lastValidatePhysicsManager_.SetBody(entity, balloonBody);
+
+        currentTransformManager_.AddComponent(entity);
+        currentTransformManager_.SetPosition(entity, position);
+        currentTransformManager_.SetScale(entity, core::Vec2f::one() * balloonScale);
+
+    }
+
 
     void RollbackManager::SpawnBullet(PlayerNumber playerNumber, core::Entity entity, core::Vec2f position, core::Vec2f velocity)
     {

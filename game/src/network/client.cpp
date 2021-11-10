@@ -21,9 +21,8 @@ namespace game
             }
 
             const auto pos = core::ConvertFromBinary<core::Vec2f>(spawnPlayerPacket->pos);
-            const auto rotation = core::ConvertFromBinary<core::degree_t>(spawnPlayerPacket->angle);
 
-            gameManager_.SpawnPlayer(playerNumber, pos, rotation);
+        		gameManager_.SpawnPlayer(playerNumber, pos);
             break;
         }
         case PacketType::START_GAME:
@@ -31,6 +30,7 @@ namespace game
             const auto* startGamePacket = static_cast<const StartGamePacket*>(packet);
             const auto startingTime = core::ConvertFromBinary<unsigned long long>(startGamePacket->startTime);
             gameManager_.StartGame(startingTime);
+            gameManager_.SpawnBalloon({ .0f, .0f }, { .0f, .0f });
             break;
         }
         case PacketType::INPUT:
@@ -91,6 +91,13 @@ namespace game
                 auto* statePtr = reinterpret_cast<std::uint8_t*>(physicsStates.data());
                 statePtr[i] = validateFramePacket->physicsState[i];
             }
+            PhysicsState physicsBalloonState;
+            for (size_t i = 0; i < validateFramePacket->physicsBalloonState.size(); i++)
+            {
+                auto* statePtr = reinterpret_cast<std::uint8_t*>(&physicsBalloonState);
+                statePtr[i] = validateFramePacket->physicsBalloonState[i];
+            }
+
             gameManager_.ConfirmValidateFrame(newValidateFrame, physicsStates);
             //logDebug("Client received validate frame " + std::to_string(newValidateFrame));
             break;

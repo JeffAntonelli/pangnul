@@ -1,5 +1,5 @@
 #pragma once
-#include "game_globals.h"
+
 #include "engine/component.h"
 #include "engine/entity.h"
 #include "maths/angle.h"
@@ -22,7 +22,7 @@ namespace game
         core::Vec2f velocity = core::Vec2f::zero();
         BodyType bodyType = BodyType::DYNAMIC;
     	static float CalculateDistance(CircleBody body1, CircleBody body2);
-        static constexpr float Rebound = 0.99f;
+        float rebound = 0.5f;
         static constexpr float radius = 0.17f;
     };
 
@@ -39,7 +39,7 @@ namespace game
         virtual void OnTrigger(core::Entity entity1, core::Entity entity2) = 0;
     };
 
-    class BodyManager : public core::ComponentManager<CircleBody, static_cast<core::EntityMask>(core::ComponentType::BODY2D)>
+    class CircleManager : public core::ComponentManager<CircleBody, static_cast<core::EntityMask>(core::ComponentType::BODY2D)>
     {
     public:
         using ComponentManager::ComponentManager;
@@ -67,7 +67,7 @@ namespace game
         void CopyAllComponents(const PhysicsManager& physicsManager);
     private:
         core::EntityManager& entityManager_;
-        BodyManager bodyManager_;
+        CircleManager circleManager_;
         BoxManager boxManager_;
         core::Action<core::Entity, core::Entity> onTriggerAction_;
         bool BodyContact(CircleBody body1, CircleBody body2);
