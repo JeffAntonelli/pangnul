@@ -30,6 +30,7 @@ namespace game
         virtual void SpawnPlayer(PlayerNumber playerNumber, core::Vec2f position);
         virtual core::Entity SpawnBullet(PlayerNumber, core::Vec2f position, core::Vec2f velocity);
         virtual void DestroyBullet(core::Entity entity);
+       /* virtual void DestroyBalloon(core::Entity entity);*/
         [[nodiscard]] core::Entity GetEntityFromPlayerNumber(PlayerNumber playerNumber) const;
         [[nodiscard]] Frame GetCurrentFrame() const { return currentFrame_; }
         [[nodiscard]] Frame GetLastValidateFrame() const { return rollbackManager_.GetLastValidateFrame(); }

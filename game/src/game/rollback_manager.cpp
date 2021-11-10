@@ -14,9 +14,8 @@ namespace game
         currentPhysicsManager_(entityManager), currentPlayerManager_(entityManager, currentPhysicsManager_, gameManager_),
         currentBulletManager_(entityManager, gameManager),
         lastValidatePhysicsManager_(entityManager),
-        lastValidatePlayerManager_(entityManager, lastValidatePhysicsManager_, gameManager_), lastValidateBulletManager_(entityManager, gameManager),
-		currentBalloonManager_(entityManager, gameManager, currentPhysicsManager_), lastValidateBalloonManager_(entityManager, gameManager, currentPhysicsManager_)
-    {
+        lastValidatePlayerManager_(entityManager, lastValidatePhysicsManager_, gameManager_), lastValidateBulletManager_(entityManager, gameManager)
+		{
         for (auto& input : inputs_)
         {
             std::fill(input.begin(), input.end(), 0u);
@@ -300,37 +299,36 @@ namespace game
 
     void RollbackManager::OnTrigger(core::Entity entity1, core::Entity entity2)
     {
-        std::function<void(const PlayerCharacter&, core::Entity, const Bullet&, core::Entity)> ManageCollision =
-            [this](const auto& player, auto playerEntity, const auto& bullet, auto bulletEntity)
+        std::function<void(const PlayerCharacter&, core::Entity, core::Entity)> ManageCollision =
+            [this](const auto& player, auto playerEntity, auto balloonEntity)
         {
-            if (player.playerNumber != bullet.playerNumber)
-            {
-                gameManager_.DestroyBullet(bulletEntity);
+            
+            
+                /*gameManager_.DestroyBalloon(balloonEntity_);*/
                 //lower health point
                 auto playerCharacter = currentPlayerManager_.GetComponent(playerEntity);
                 if (playerCharacter.invincibilityTime <= 0.0f)
                 {
-                    core::LogDebug(fmt::format("Player {} is hit by bullet", playerCharacter.playerNumber));
+                    core::LogDebug(fmt::format("Player {} is hit by balloon", playerCharacter.playerNumber));
                     playerCharacter.health--;
                     playerCharacter.invincibilityTime = playerInvincibilityPeriod;
                 }
                 currentPlayerManager_.SetComponent(playerEntity, playerCharacter);
-            }
+            
         };
         if (entityManager_.HasComponent(entity1, static_cast<core::EntityMask>(ComponentType::PLAYER_CHARACTER)) &&
-            entityManager_.HasComponent(entity2, static_cast<core::EntityMask>(ComponentType::BULLET)))
+            entityManager_.HasComponent(entity2, static_cast<core::EntityMask>(ComponentType::BALLOON)))
         {
             const auto& player = currentPlayerManager_.GetComponent(entity1);
-            const auto& bullet = currentBulletManager_.GetComponent(entity2);
-            ManageCollision(player, entity1, bullet, entity2);
+            ManageCollision(player, entity1, entity2);
 
         }
         if (entityManager_.HasComponent(entity2, static_cast<core::EntityMask>(ComponentType::PLAYER_CHARACTER)) &&
-            entityManager_.HasComponent(entity1, static_cast<core::EntityMask>(ComponentType::BULLET)))
+            entityManager_.HasComponent(entity1, static_cast<core::EntityMask>(ComponentType::BALLOON)))
         {
             const auto& player = currentPlayerManager_.GetComponent(entity2);
-            const auto& bullet = currentBulletManager_.GetComponent(entity1);
-            ManageCollision(player, entity2, bullet, entity1);
+           
+            ManageCollision(player, entity2, entity1);
         }
     }
 
@@ -342,18 +340,10 @@ namespace game
         balloonBody.velocity = velocity;
         balloonBody.rebound = 1.0f;
 
-        Balloon balloon;
-
-        currentBalloonManager_.AddComponent(entity);
-        currentBalloonManager_.SetComponent(entity, balloon);
-
         currentPhysicsManager_.AddBody(entity);
         currentPhysicsManager_.SetBody(entity, balloonBody);
 
-        lastValidateBalloonManager_.AddComponent(entity);
-        lastValidateBalloonManager_.SetComponent(entity, balloon);
-
-        lastValidatePhysicsManager_.AddBody(entity);
+    	lastValidatePhysicsManager_.AddBody(entity);
         lastValidatePhysicsManager_.SetBody(entity, balloonBody);
 
         currentTransformManager_.AddComponent(entity);
@@ -384,7 +374,6 @@ namespace game
         currentTransformManager_.AddComponent(entity);
         currentTransformManager_.SetPosition(entity, position);
         currentTransformManager_.SetScale(entity, core::Vec2f::one() * bulletScale);
-        currentTransformManager_.SetRotation(entity, core::degree_t(0.0f));
     }
 
     void RollbackManager::DestroyEntity(core::Entity entity)

@@ -73,14 +73,12 @@ class GameManager;
         core::TransformManager currentTransformManager_;
         PhysicsManager currentPhysicsManager_;
         PlayerCharacterManager currentPlayerManager_;
-        BalloonManager currentBalloonManager_;
         BulletManager currentBulletManager_;
         /**
          * Last Validate (confirm frame) Component Managers used for rollback
          */
         PhysicsManager lastValidatePhysicsManager_;
         PlayerCharacterManager lastValidatePlayerManager_;
-        BalloonManager lastValidateBalloonManager_;
         BulletManager lastValidateBulletManager_;
 
 

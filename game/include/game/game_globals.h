@@ -21,6 +21,7 @@ namespace game
     const float playerShootingPeriod = 0.3f;
     const float bulletSpeed = 2.0f;
     const float bulletScale = 0.2f;
+    const float bulletVelocity = 4.0f;
     const float bulletPeriod = 3.0f;
     const float playerInvincibilityPeriod = 1.5f;
     const float invincibilityFlashPeriod = 0.5f;

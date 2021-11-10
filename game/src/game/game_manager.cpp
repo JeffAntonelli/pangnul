@@ -56,6 +56,7 @@ namespace game
     {
         const core::Entity entity = entityManager_.CreateEntity();
 
+        entityManager_.AddComponent(entity, static_cast<core::EntityMask>(ComponentType::BALLOON));
         transformManager_.AddComponent(entity);
         transformManager_.SetPosition(entity, position);
         transformManager_.SetScale(entity, core::Vec2f::one() * balloonScale);
@@ -63,6 +64,10 @@ namespace game
         return entity;
     }
 
+    /*void GameManager::DestroyBalloon(core::Entity entity)
+    {
+        rollbackManager_.DestroyEntity(entity);
+    }*/
 
     core::Entity GameManager::SpawnBullet(PlayerNumber playerNumber, core::Vec2f position, core::Vec2f velocity)
     {

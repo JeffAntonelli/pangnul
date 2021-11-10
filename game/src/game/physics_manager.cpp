@@ -13,74 +13,64 @@ namespace game
 
     void PhysicsManager::FixedUpdate(sf::Time dt)
     {
-        for (core::Entity entity = 0; entity < entityManager_.GetEntitiesSize(); entity++)
+        for (core::Entity entity1 = 0; entity1 < entityManager_.GetEntitiesSize(); entity1++)
         {
-            if (!entityManager_.HasComponent(entity, static_cast<core::EntityMask>(core::ComponentType::BODY2D)))
+            if (!entityManager_.HasComponent(entity1, static_cast<core::EntityMask>(core::ComponentType::BODY2D)))
                 continue;
-            auto body = circleManager_.GetComponent(entity);
+            auto body1 = circleManager_.GetComponent(entity1);
             core::Vec2f Gravity = { 0, -9.81 };
             core::Vec2f max_pos = { (core::windowSize.x / core::pixelPerMeter / 2),
                 (core::windowSize.y / core::pixelPerMeter / 2) };
             core::Vec2f min_pos = { -(core::windowSize.x / core::pixelPerMeter / 2),
             -(core::windowSize.y / core::pixelPerMeter / 2) };
 
-            body.velocity += Gravity * dt.asSeconds();
-            body.position += body.velocity * dt.asSeconds();
+            body1.velocity += Gravity * dt.asSeconds();
+            body1.position += body1.velocity * dt.asSeconds();
 
-            if (body.position.x <= min_pos.x + body.radius)
+            if (body1.position.x <= min_pos.x + body1.radius)
             {
-                body.position.x = min_pos.x + body.radius;
-                body.velocity.x = -body.rebound * body.velocity.x;
+                body1.position.x = min_pos.x + body1.radius;
+                body1.velocity.x = -body1.rebound * body1.velocity.x;
             }
-            if (body.position.y <= min_pos.y + body.radius)           
+            if (body1.position.y <= min_pos.y + body1.radius)           
             {
-                body.position.y = min_pos.y + body.radius;
-                body.velocity.y = -body.rebound * body.velocity.y;
+                body1.position.y = min_pos.y + body1.radius;
+                body1.velocity.y = -body1.rebound * body1.velocity.y;
             }
-            if (body.position.x >= max_pos.x - body.radius)
+            if (body1.position.x >= max_pos.x - body1.radius)
             {
-                body.position.x = max_pos.x - body.radius;
-                body.velocity.x = -body.rebound * body.velocity.x;
+                body1.position.x = max_pos.x - body1.radius;
+                body1.velocity.x = -body1.rebound * body1.velocity.x;
             }
-            if (body.position.y >= max_pos.y - CircleBody::radius)
+            if (body1.position.y >= max_pos.y - CircleBody::radius)
             {
-                body.position.y = max_pos.y - CircleBody::radius;
-                body.velocity.y = -body.rebound * body.velocity.y;
+                body1.position.y = max_pos.y - CircleBody::radius;
+                body1.velocity.y = -body1.rebound * body1.velocity.y;
             }
 
-            circleManager_.SetComponent(entity, body);
+            circleManager_.SetComponent(entity1, body1);
 
-            auto body1 = circleManager_.GetComponent(0);
-            auto body2 = circleManager_.GetComponent(1);
-
-            if(BodyContact(body1, body2))
-            {
-                ResolveBodyContact(body1, body2);
-                circleManager_.SetComponent(0, body1);
-                circleManager_.SetComponent(1, body2);
-            }
 
         }
-        for (core::Entity entity = 0; entity < entityManager_.GetEntitiesSize(); entity++)
+        for (core::Entity entity1 = 0; entity1 < entityManager_.GetEntitiesSize(); entity1++)
         {
-            if (!entityManager_.HasComponent(entity,
-                                                   static_cast<core::EntityMask>(core::ComponentType::BODY2D) |
-                                                   static_cast<core::EntityMask>(core::ComponentType::BOX_COLLIDER2D)) ||
-                entityManager_.HasComponent(entity, static_cast<core::EntityMask>(ComponentType::DESTROYED)))
+            if (!entityManager_.HasComponent(entity1, static_cast<core::EntityMask>(core::ComponentType::BODY2D)))
                 continue;
-            for (core::Entity otherEntity = entity; otherEntity < entityManager_.GetEntitiesSize(); otherEntity++)
-            {
-                if (entity == otherEntity)
-                    continue;
-                if (!entityManager_.HasComponent(otherEntity,
-                                                 static_cast<core::EntityMask>(core::ComponentType::BODY2D) | static_cast<core::EntityMask>(core::ComponentType::BOX_COLLIDER2D)) ||
-                    entityManager_.HasComponent(entity, static_cast<core::EntityMask>(ComponentType::DESTROYED)))
-                    continue;
-                const CircleBody& body1 = circleManager_.GetComponent(entity);
-                
-            	const CircleBody& body2 = circleManager_.GetComponent(otherEntity);
-                
+            auto body1 = circleManager_.GetComponent(entity1);
 
+            for (core::Entity entity2 = entity1 + 1; entity2 < entityManager_.GetEntitiesSize(); entity2++)
+            {
+                if (!entityManager_.HasComponent(entity2, static_cast<core::EntityMask>(core::ComponentType::BODY2D)))
+                    continue;
+                auto body2 = circleManager_.GetComponent(entity2);
+
+                if (BodyContact(body1, body2))
+                {
+                	ResolveBodyContact(body1, body2);
+                	onTriggerAction_.Execute(entity1, entity2);
+                    circleManager_.SetComponent(entity1, body1);
+                    circleManager_.SetComponent(entity2, body2);
+                }
             }
         }
     }
