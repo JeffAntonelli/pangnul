@@ -26,6 +26,9 @@ namespace game
     const float playerInvincibilityPeriod = 1.5f;
     const float invincibilityFlashPeriod = 0.5f;
     const float balloonScale = 0.2f;
+    const core::Vec2f balloonSpawnPosition = { 0.0f, 4.0f };
+    const core::Vec2f balloonSpawnVelocity = { 0.0f, 0.0f };
+    const core::Vec2f bulletSpawnVelocity = { 0.0f, 11.0f };
 
     const std::array<sf::Color, std::max(maxPlayerNmb, 4u)> playerColors =
     {

@@ -70,6 +70,7 @@ namespace game
         CircleManager circleManager_;
         BoxManager boxManager_;
         core::Action<core::Entity, core::Entity> onTriggerAction_;
+
         bool BodyContact(CircleBody body1, CircleBody body2);
         void ResolveBodyContact(CircleBody& body1, CircleBody& body2);
         core::Vec2f ContactPoint(const CircleBody& rb1, const CircleBody& rb2) const;

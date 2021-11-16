@@ -1,6 +1,5 @@
 #pragma once
 
-#include "balloon_manager.h"
 #include "bullet_manager.h"
 #include "game_globals.h"
 #include "physics_manager.h"
@@ -53,7 +52,6 @@ class GameManager;
         [[nodiscard]] Frame GetCurrentFrame() const { return currentFrame_; }
         [[nodiscard]] const core::TransformManager& GetTransformManager() const { return currentTransformManager_; }
         [[nodiscard]] const PlayerCharacterManager& GetPlayerCharacterManager() const { return currentPlayerManager_; }
-        void InitBackground(core::Vec2f position);
         void SpawnPlayer(PlayerNumber playerNumber, core::Entity entity, core::Vec2f position);
         void SpawnBullet(PlayerNumber playerNumber, core::Entity entity, core::Vec2f position, core::Vec2f velocity);
         void SpawnBalloon(core::Entity entity, core::Vec2f position, core::Vec2f velocity);
@@ -62,7 +60,7 @@ class GameManager;
          */
         void DestroyEntity(core::Entity entity);
 
-        void OnTrigger(core::Entity entity1, core::Entity entity2) override;
+        void OnTrigger(core::Entity entity1, core::Entity entity2) override; // test.
     private:
         PlayerInput GetInputAtFrame(PlayerNumber playerNumber, Frame frame);
         GameManager& gameManager_;
@@ -87,6 +85,7 @@ class GameManager;
         Frame testedFrame_ = 0;
 
         core::Entity balloonEntity_ = core::EntityManager::INVALID_ENTITY;
+        core::Entity bulletEntity_ = core::EntityManager::INVALID_ENTITY; // Rajout.
 
         static constexpr std::size_t windowBufferSize = 5 * 50; // 5 seconds of frame at 50 fps
         std::array<std::uint32_t, maxPlayerNmb> lastReceivedFrame_{};

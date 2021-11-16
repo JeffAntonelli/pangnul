@@ -1,4 +1,5 @@
 #include <array>
+#include <game/game_globals.h>
 #include <game/rollback_manager.h>
 #include <game/game_manager.h>
 #include <cassert>
@@ -32,6 +33,7 @@ namespace game
         {
             if (createdEntity.createdFrame > lastValidateFrame)
             {
+                core::LogDebug(fmt::format("Destroy entity{}", createdEntity.entity));
                 entityManager_.DestroyEntity(createdEntity.entity);
             }
         }
@@ -42,9 +44,26 @@ namespace game
             if (entityManager_.HasComponent(entity, static_cast<core::EntityMask>(ComponentType::DESTROYED)))
             {
                 entityManager_.RemoveComponent(entity, static_cast<core::EntityMask>(ComponentType::DESTROYED));
+                if (entityManager_.HasComponent(entity, static_cast<core::EntityMask>(ComponentType::BALLOON)))
+                {
+                    balloonEntity_ = entity;
+                }
             }
         }
-        
+
+        for (core::Entity entity = 0; entity < entityManager_.GetEntitiesSize(); entity++)
+        {
+            if (entityManager_.HasComponent(entity, static_cast<core::EntityMask>(ComponentType::DESTROYED)))
+            {
+                entityManager_.RemoveComponent(entity, static_cast<core::EntityMask>(ComponentType::DESTROYED));
+                if (entityManager_.HasComponent(entity, static_cast<core::EntityMask>(ComponentType::BULLET)))
+                {
+                    bulletEntity_ = entity;
+                }
+            }
+        }
+
+
         //Revert the current game state to the last validated game state
         currentBulletManager_.CopyAllComponents(lastValidateBulletManager_.GetAllComponents());
         currentPhysicsManager_.CopyAllComponents(lastValidatePhysicsManager_);
@@ -135,6 +154,7 @@ namespace game
         {
             if (createdEntity.createdFrame > lastValidateFrame)
             {
+                core::LogDebug(fmt::format("Destroy entity{}", createdEntity.entity));
                 entityManager_.DestroyEntity(createdEntity.entity);
             }
         }
@@ -145,10 +165,27 @@ namespace game
             if (entityManager_.HasComponent(entity, static_cast<core::EntityMask>(ComponentType::DESTROYED)))
             {
                 entityManager_.RemoveComponent(entity, static_cast<core::EntityMask>(ComponentType::DESTROYED));
+                if (entityManager_.HasComponent(entity, static_cast<core::EntityMask>(ComponentType::BALLOON)))
+                {
+                    balloonEntity_ = entity;
+                }
             }
 
         }
+
+        for (core::Entity entity = 0; entity < entityManager_.GetEntitiesSize(); entity++)
+        {
+            if (entityManager_.HasComponent(entity, static_cast<core::EntityMask>(ComponentType::DESTROYED)))
+            {
+                entityManager_.RemoveComponent(entity, static_cast<core::EntityMask>(ComponentType::DESTROYED));
+                if (entityManager_.HasComponent(entity, static_cast<core::EntityMask>(ComponentType::BULLET)))
+                {
+                    bulletEntity_ = entity;
+                }
+            }
+        }
         createdEntities_.clear();
+
         //We check that we got all the inputs
         for (PlayerNumber playerNumber = 0; playerNumber < maxPlayerNmb; playerNumber++)
         {
@@ -302,19 +339,18 @@ namespace game
         std::function<void(const PlayerCharacter&, core::Entity, core::Entity)> ManageCollision =
             [this](const auto& player, auto playerEntity, auto balloonEntity)
         {
-            
-            
-                /*gameManager_.DestroyBalloon(balloonEntity_);*/
-                //lower health point
-                auto playerCharacter = currentPlayerManager_.GetComponent(playerEntity);
-                if (playerCharacter.invincibilityTime <= 0.0f)
-                {
-                    core::LogDebug(fmt::format("Player {} is hit by balloon", playerCharacter.playerNumber));
-                    playerCharacter.health--;
-                    playerCharacter.invincibilityTime = playerInvincibilityPeriod;
-                }
-                currentPlayerManager_.SetComponent(playerEntity, playerCharacter);
-            
+            //lower health point
+            auto playerCharacter = currentPlayerManager_.GetComponent(playerEntity);
+            if (playerCharacter.invincibilityTime <= 0.0f)
+            {
+                core::LogDebug(fmt::format("Player {} is hit by balloon", playerCharacter.playerNumber));
+                playerCharacter.health--;
+                playerCharacter.invincibilityTime = playerInvincibilityPeriod;
+                gameManager_.DestroyBullet(balloonEntity_);
+                gameManager_.SpawnBalloon(balloonSpawnPosition, balloonSpawnVelocity);
+            }
+            currentPlayerManager_.SetComponent(playerEntity, playerCharacter);
+
         };
         if (entityManager_.HasComponent(entity1, static_cast<core::EntityMask>(ComponentType::PLAYER_CHARACTER)) &&
             entityManager_.HasComponent(entity2, static_cast<core::EntityMask>(ComponentType::BALLOON)))
@@ -327,13 +363,13 @@ namespace game
             entityManager_.HasComponent(entity1, static_cast<core::EntityMask>(ComponentType::BALLOON)))
         {
             const auto& player = currentPlayerManager_.GetComponent(entity2);
-           
             ManageCollision(player, entity2, entity1);
         }
     }
 
     void RollbackManager::SpawnBalloon(core::Entity entity, core::Vec2f position, core::Vec2f velocity)
     {
+        createdEntities_.push_back({ entity, testedFrame_ });
         balloonEntity_ = entity;
         CircleBody balloonBody;
         balloonBody.position = position;
@@ -356,7 +392,7 @@ namespace game
     void RollbackManager::SpawnBullet(PlayerNumber playerNumber, core::Entity entity, core::Vec2f position, core::Vec2f velocity)
     {
         createdEntities_.push_back({ entity, testedFrame_ });
-
+        bulletEntity_ = entity;
         CircleBody bulletBody;
         bulletBody.position = position;
         bulletBody.velocity = velocity;

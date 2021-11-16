@@ -29,7 +29,7 @@ namespace game
 
             if (lastPlayerNumber_ == maxPlayerNmb)
             {
-                gameManager_.SpawnBalloon({ .0f, 4.0f }, { 0.0f, .0f });
+                gameManager_.SpawnBalloon(balloonSpawnPosition, balloonSpawnVelocity);
                 auto startGamePacket = std::make_unique<StartGamePacket>();
                 startGamePacket->packetType = PacketType::START_GAME;
                 using namespace std::chrono;

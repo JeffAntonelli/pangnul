@@ -55,7 +55,7 @@ namespace game
     core::Entity GameManager::SpawnBalloon(core::Vec2f position, core::Vec2f velocity)
     {
         const core::Entity entity = entityManager_.CreateEntity();
-
+        core::LogDebug(fmt::format("spawn balloon entity{}", entity));
         entityManager_.AddComponent(entity, static_cast<core::EntityMask>(ComponentType::BALLOON));
         transformManager_.AddComponent(entity);
         transformManager_.SetPosition(entity, position);
@@ -63,11 +63,6 @@ namespace game
         rollbackManager_.SpawnBalloon(entity, position, velocity);
         return entity;
     }
-
-    /*void GameManager::DestroyBalloon(core::Entity entity)
-    {
-        rollbackManager_.DestroyEntity(entity);
-    }*/
 
     core::Entity GameManager::SpawnBullet(PlayerNumber playerNumber, core::Vec2f position, core::Vec2f velocity)
     {
@@ -319,9 +314,9 @@ namespace game
         spriteManager_.AddComponent(entity);
         spriteManager_.SetTexture(entity, balloonTexture_);
         spriteManager_.SetOrigin(entity, sf::Vector2f(balloonTexture_.getSize()) / 2.0f);
-        auto sprite = spriteManager_.GetComponent(entity);
-        /*sprite.setColor(playerColors[playerNumber]);*/
-        spriteManager_.SetComponent(entity, sprite);
+        spriteManager_.SetColor(entity, sf::Color::White);
+        core::LogDebug(fmt::format("client Spawn balloon entity{}", entity));
+        
         return entity;
 
     }
@@ -329,7 +324,7 @@ namespace game
 
 	core::Entity ClientGameManager::SpawnBullet(PlayerNumber playerNumber, core::Vec2f position, core::Vec2f velocity)
     {
-        const auto entity = GameManager::SpawnBullet(playerNumber, position, velocity);
+        const auto entity = GameManager::SpawnBullet(playerNumber, position, bulletSpawnVelocity);
 
         spriteManager_.AddComponent(entity);
         spriteManager_.SetTexture(entity, bulletTexture_);
@@ -432,21 +427,13 @@ namespace game
     {
         if (newValidateFrame < rollbackManager_.GetLastValidateFrame())
         {
-            //core::LogDebug(fmt::format("[Warning] New validate frame is too old"));
             return;
         }
         for (PlayerNumber playerNumber = 0; playerNumber < maxPlayerNmb; playerNumber++)
         {
             if (rollbackManager_.GetLastReceivedFrame(playerNumber) < newValidateFrame)
             {
-                /*
-                core::LogDebug(fmt::format("[Warning] Trying to validate frame {} while playerNumber {} is at input frame {}, client player {}",
-                    newValidateFrame,
-                    playerNumber + 1,
-                    rollbackManager_.GetLastReceivedFrame(playerNumber),
-                    GetPlayerNumber()+1));
-                */
-                return;
+            	return;
             }
         }
         rollbackManager_.ConfirmFrame(newValidateFrame, physicsStates);
@@ -466,40 +453,6 @@ namespace game
             return;
         }
 
-        /*cameraView_ = originalView_;
-        const sf::Vector2f extends{ cameraView_.getSize() / 2.0f / PixelPerUnit };
-        float currentZoom = 1.0f;
-        constexpr float margin = 1.0f;
-        for (PlayerNumber playerNumber = 0; playerNumber < maxPlayerNmb; playerNumber++)
-        {
-            const auto playerEntity = GetEntityFromPlayerNumber(playerNumber);
-            if(playerEntity == core::EntityManager::INVALID_ENTITY)
-            {
-                continue;
-            }
-            if(entityManager_.HasComponent(playerEntity, static_cast<core::EntityMask>(core::ComponentType::POSITION)))
-            {
-                const auto position = transformManager_.GetPosition(playerEntity);
-                if((std::abs(position.x) + margin) > extends.x)
-                {
-                    const auto ratio = (std::abs(position.x ) + margin) / extends.x;
-                    if(ratio > currentZoom)
-                    {
-                        currentZoom = ratio;
-                    }
-                }
-                if ((std::abs(position.y) + margin) > extends.y)
-                {
-                    const auto ratio = (std::abs(position.y) + margin) / extends.y;
-                    if (ratio > currentZoom)
-                    {
-                        currentZoom = ratio;
-                    }
-                }
-            }
-        }*/
-        //cameraView_.zoom(currentZoom);
         cameraView_ = originalView_;
-
     }
 }

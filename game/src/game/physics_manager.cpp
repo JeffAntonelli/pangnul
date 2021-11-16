@@ -19,32 +19,32 @@ namespace game
                 continue;
             auto body1 = circleManager_.GetComponent(entity1);
             core::Vec2f Gravity = { 0, -9.81 };
-            core::Vec2f max_pos = { (core::windowSize.x / core::pixelPerMeter / 2),
+            core::Vec2f maxPlayAreaSize = { (core::windowSize.x / core::pixelPerMeter / 2),
                 (core::windowSize.y / core::pixelPerMeter / 2) };
-            core::Vec2f min_pos = { -(core::windowSize.x / core::pixelPerMeter / 2),
+            core::Vec2f minPlayAreaSize = { -(core::windowSize.x / core::pixelPerMeter / 2),
             -(core::windowSize.y / core::pixelPerMeter / 2) };
 
             body1.velocity += Gravity * dt.asSeconds();
             body1.position += body1.velocity * dt.asSeconds();
 
-            if (body1.position.x <= min_pos.x + body1.radius)
+            if (body1.position.x <= minPlayAreaSize.x + body1.radius)
             {
-                body1.position.x = min_pos.x + body1.radius;
+                body1.position.x = minPlayAreaSize.x + body1.radius;
                 body1.velocity.x = -body1.rebound * body1.velocity.x;
             }
-            if (body1.position.y <= min_pos.y + body1.radius)           
+            if (body1.position.y <= minPlayAreaSize.y + body1.radius)           
             {
-                body1.position.y = min_pos.y + body1.radius;
+                body1.position.y = minPlayAreaSize.y + body1.radius;
                 body1.velocity.y = -body1.rebound * body1.velocity.y;
             }
-            if (body1.position.x >= max_pos.x - body1.radius)
+            if (body1.position.x >= maxPlayAreaSize.x - body1.radius)
             {
-                body1.position.x = max_pos.x - body1.radius;
+                body1.position.x = maxPlayAreaSize.x - body1.radius;
                 body1.velocity.x = -body1.rebound * body1.velocity.x;
             }
-            if (body1.position.y >= max_pos.y - CircleBody::radius)
+            if (body1.position.y >= maxPlayAreaSize.y - CircleBody::radius)
             {
-                body1.position.y = max_pos.y - CircleBody::radius;
+                body1.position.y = maxPlayAreaSize.y - CircleBody::radius;
                 body1.velocity.y = -body1.rebound * body1.velocity.y;
             }
 
@@ -126,19 +126,25 @@ namespace game
     {
         float v1n = ComputeNormal(body1.position, ContactPoint(body1, body2)).x * body1.velocity.x +
             ComputeNormal(body1.position, ContactPoint(body1, body2)).y * body1.velocity.y;
+
         float v1t = ComputeTangent(body1.position, ContactPoint(body1, body2)).x * body1.velocity.x +
             ComputeTangent(body1.position, ContactPoint(body1, body2)).y * body1.velocity.y;
+
         float v2n = ComputeNormal(body2.position, ContactPoint(body1, body2)).x * body2.velocity.x +
             ComputeNormal(body2.position, ContactPoint(body1, body2)).y * body2.velocity.y;
+
         float v2t = ComputeTangent(body2.position, ContactPoint(body1, body2)).x * body2.velocity.x +
             ComputeTangent(body2.position, ContactPoint(body1, body2)).y * body2.velocity.y;
 
         body1.velocity.x = ComputeNormal(body1.position, ContactPoint(body1, body2)).x * v2n + ComputeTangent(
             body1.position, ContactPoint(body1, body2)).x * v1t * -body1.rebound;
+
         body1.velocity.y = ComputeNormal(body1.position, ContactPoint(body1, body2)).y * v2n + ComputeTangent(
             body1.position, ContactPoint(body1, body2)).y * v1t * -body1.rebound;
+
         body2.velocity.x = ComputeNormal(body2.position, ContactPoint(body1, body2)).x * v1n + ComputeTangent(
             body2.position, ContactPoint(body1, body2)).x * v2t * -body2.rebound;
+
         body2.velocity.y = ComputeNormal(body2.position, ContactPoint(body1, body2)).y * v1n + ComputeTangent(
             body2.position, ContactPoint(body1, body2)).y * v2t * -body2.rebound;
 

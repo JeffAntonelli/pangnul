@@ -41,7 +41,7 @@ namespace game
          * \brief Called by the server to validate a frame
          */
         void Validate(Frame newValidateFrame);
-        core::Entity SpawnBalloon(core::Vec2f position, core::Vec2f velocity);
+		virtual core::Entity SpawnBalloon(core::Vec2f position, core::Vec2f velocity);
         //void CopyAllComponents(const GameManager& gameManager);
         static constexpr float PixelPerUnit = 100.0f;
         static constexpr float FixedPeriod = 0.02f; //50fps
@@ -75,7 +75,7 @@ namespace game
     	void Draw(sf::RenderTarget& target) override;
         void SetClientPlayer(PlayerNumber clientPlayer);
     	void SpawnPlayer(PlayerNumber playerNumber, core::Vec2f position) override;
-        core::Entity SpawnBalloon(core::Vec2f position, core::Vec2f velocity);
+        core::Entity SpawnBalloon(core::Vec2f position, core::Vec2f velocity) override;
         core::Entity SpawnBullet(PlayerNumber playerNumber, core::Vec2f position, core::Vec2f velocity) override;
         void FixedUpdate();
         void SetPlayerInput(PlayerNumber playerNumber, std::uint8_t playerInput, std::uint32_t inputFrame) override;
