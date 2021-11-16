@@ -13,9 +13,8 @@ namespace game
         gameManager_(gameManager), entityManager_(entityManager),
         currentTransformManager_(entityManager),
         currentPhysicsManager_(entityManager), currentPlayerManager_(entityManager, currentPhysicsManager_, gameManager_),
-        currentBulletManager_(entityManager, gameManager),
         lastValidatePhysicsManager_(entityManager),
-        lastValidatePlayerManager_(entityManager, lastValidatePhysicsManager_, gameManager_), lastValidateBulletManager_(entityManager, gameManager)
+        lastValidatePlayerManager_(entityManager, lastValidatePhysicsManager_, gameManager_)
 		{
         for (auto& input : inputs_)
         {
@@ -51,21 +50,7 @@ namespace game
             }
         }
 
-        for (core::Entity entity = 0; entity < entityManager_.GetEntitiesSize(); entity++)
-        {
-            if (entityManager_.HasComponent(entity, static_cast<core::EntityMask>(ComponentType::DESTROYED)))
-            {
-                entityManager_.RemoveComponent(entity, static_cast<core::EntityMask>(ComponentType::DESTROYED));
-                if (entityManager_.HasComponent(entity, static_cast<core::EntityMask>(ComponentType::BULLET)))
-                {
-                    bulletEntity_ = entity;
-                }
-            }
-        }
-
-
         //Revert the current game state to the last validated game state
-        currentBulletManager_.CopyAllComponents(lastValidateBulletManager_.GetAllComponents());
         currentPhysicsManager_.CopyAllComponents(lastValidatePhysicsManager_);
         currentPlayerManager_.CopyAllComponents(lastValidatePlayerManager_.GetAllComponents());
 
@@ -87,7 +72,6 @@ namespace game
                 currentPlayerManager_.SetComponent(playerEntity, playerCharacter);
             }
             //Simulate one frame of the game
-            currentBulletManager_.FixedUpdate(sf::seconds(GameManager::FixedPeriod));
             currentPlayerManager_.FixedUpdate(sf::seconds(GameManager::FixedPeriod));
             currentPhysicsManager_.FixedUpdate(sf::seconds(GameManager::FixedPeriod));
         }
@@ -100,7 +84,6 @@ namespace game
                 continue;
             const auto& body = currentPhysicsManager_.GetBody(entity);
             currentTransformManager_.SetPosition(entity, body.position);
-            //currentTransformManager_.SetRotation(entity, body.rotation);
         }
     }
     void RollbackManager::SetPlayerInput(PlayerNumber playerNumber, PlayerInput playerInput, std::uint32_t inputFrame)
@@ -172,18 +155,6 @@ namespace game
             }
 
         }
-
-        for (core::Entity entity = 0; entity < entityManager_.GetEntitiesSize(); entity++)
-        {
-            if (entityManager_.HasComponent(entity, static_cast<core::EntityMask>(ComponentType::DESTROYED)))
-            {
-                entityManager_.RemoveComponent(entity, static_cast<core::EntityMask>(ComponentType::DESTROYED));
-                if (entityManager_.HasComponent(entity, static_cast<core::EntityMask>(ComponentType::BULLET)))
-                {
-                    bulletEntity_ = entity;
-                }
-            }
-        }
         createdEntities_.clear();
 
         //We check that we got all the inputs
@@ -196,7 +167,6 @@ namespace game
             }
         }
         //We use the current game state as the temporary new validate game state
-        currentBulletManager_.CopyAllComponents(lastValidateBulletManager_.GetAllComponents());
         currentPhysicsManager_.CopyAllComponents(lastValidatePhysicsManager_);
         currentPlayerManager_.CopyAllComponents(lastValidatePlayerManager_.GetAllComponents());
 
@@ -214,7 +184,6 @@ namespace game
                 currentPlayerManager_.SetComponent(playerEntity, playerCharacter);
             }
             //We simulate one frame
-            currentBulletManager_.FixedUpdate(sf::seconds(GameManager::FixedPeriod));
             currentPlayerManager_.FixedUpdate(sf::seconds(GameManager::FixedPeriod));
             currentPhysicsManager_.FixedUpdate(sf::seconds(GameManager::FixedPeriod));
         }
@@ -227,7 +196,6 @@ namespace game
             }
         }
         //Copy back the new validate game state to the last validated game state
-        lastValidateBulletManager_.CopyAllComponents(currentBulletManager_.GetAllComponents());
         lastValidatePlayerManager_.CopyAllComponents(currentPlayerManager_.GetAllComponents());
         lastValidatePhysicsManager_.CopyAllComponents(currentPhysicsManager_);
         lastValidateFrame_ = newValidateFrame;
@@ -346,7 +314,7 @@ namespace game
                 core::LogDebug(fmt::format("Player {} is hit by balloon", playerCharacter.playerNumber));
                 playerCharacter.health--;
                 playerCharacter.invincibilityTime = playerInvincibilityPeriod;
-                gameManager_.DestroyBullet(balloonEntity_);
+                gameManager_.DestroyBalloon(balloonEntity_);
                 gameManager_.SpawnBalloon(balloonSpawnPosition, balloonSpawnVelocity);
             }
             currentPlayerManager_.SetComponent(playerEntity, playerCharacter);
@@ -374,7 +342,7 @@ namespace game
         CircleBody balloonBody;
         balloonBody.position = position;
         balloonBody.velocity = velocity;
-        balloonBody.rebound = 1.0f;
+        balloonBody.rebound = .80f;
 
         currentPhysicsManager_.AddBody(entity);
         currentPhysicsManager_.SetBody(entity, balloonBody);
@@ -388,33 +356,9 @@ namespace game
 
     }
 
-
-    void RollbackManager::SpawnBullet(PlayerNumber playerNumber, core::Entity entity, core::Vec2f position, core::Vec2f velocity)
-    {
-        createdEntities_.push_back({ entity, testedFrame_ });
-        bulletEntity_ = entity;
-        CircleBody bulletBody;
-        bulletBody.position = position;
-        bulletBody.velocity = velocity;
-        Box bulletBox;
-        bulletBox.extends = core::Vec2f::one() * bulletScale * 0.5f;
-
-        currentBulletManager_.AddComponent(entity);
-        currentBulletManager_.SetComponent(entity, { bulletPeriod, playerNumber });
-
-        currentPhysicsManager_.AddBody(entity);
-        currentPhysicsManager_.SetBody(entity, bulletBody);
-        currentPhysicsManager_.AddBox(entity);
-        currentPhysicsManager_.SetBox(entity, bulletBox);
-
-        currentTransformManager_.AddComponent(entity);
-        currentTransformManager_.SetPosition(entity, position);
-        currentTransformManager_.SetScale(entity, core::Vec2f::one() * bulletScale);
-    }
-
     void RollbackManager::DestroyEntity(core::Entity entity)
     {
-        //we don't need to save a bullet that has been created in the time window
+        //we don't need to save a balloon that has been created in the time window
         if (std::find_if(createdEntities_.begin(), createdEntities_.end(), [entity](auto newEntity)
             {
                 return newEntity.entity == entity;

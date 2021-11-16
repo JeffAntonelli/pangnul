@@ -64,18 +64,7 @@ namespace game
         return entity;
     }
 
-    core::Entity GameManager::SpawnBullet(PlayerNumber playerNumber, core::Vec2f position, core::Vec2f velocity)
-    {
-        const core::Entity entity = entityManager_.CreateEntity();
-
-        transformManager_.AddComponent(entity);
-        transformManager_.SetPosition(entity, position);
-        transformManager_.SetScale(entity, core::Vec2f::one() * bulletScale);
-        rollbackManager_.SpawnBullet(playerNumber, entity, position, velocity);
-        return entity;
-    }
-
-    void GameManager::DestroyBullet(core::Entity entity)
+	void GameManager::DestroyBalloon(core::Entity entity)
     {
         rollbackManager_.DestroyEntity(entity);
     }
@@ -115,10 +104,6 @@ namespace game
     void ClientGameManager::Init()
     {
         //load textures
-    	if (!bulletTexture_.loadFromFile("data/sprites/bullet.png"))
-        {
-            core::LogError("Could not load bullet sprite");
-        }
         if (!shipTexture_.loadFromFile("data/sprites/ship.png"))
         {
             core::LogError("Could not load ship sprite");
@@ -320,21 +305,6 @@ namespace game
         return entity;
 
     }
-
-
-	core::Entity ClientGameManager::SpawnBullet(PlayerNumber playerNumber, core::Vec2f position, core::Vec2f velocity)
-    {
-        const auto entity = GameManager::SpawnBullet(playerNumber, position, bulletSpawnVelocity);
-
-        spriteManager_.AddComponent(entity);
-        spriteManager_.SetTexture(entity, bulletTexture_);
-        spriteManager_.SetOrigin(entity, sf::Vector2f(bulletTexture_.getSize())/2.0f);
-        auto sprite = spriteManager_.GetComponent(entity);
-        sprite.setColor(playerColors[playerNumber]);
-        spriteManager_.SetComponent(entity, sprite);
-        return entity;
-    }
-
 
     void ClientGameManager::FixedUpdate()
     {

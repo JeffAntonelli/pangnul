@@ -28,9 +28,7 @@ namespace game
         GameManager();
     	virtual ~GameManager() = default;
         virtual void SpawnPlayer(PlayerNumber playerNumber, core::Vec2f position);
-        virtual core::Entity SpawnBullet(PlayerNumber, core::Vec2f position, core::Vec2f velocity);
-        virtual void DestroyBullet(core::Entity entity);
-       /* virtual void DestroyBalloon(core::Entity entity);*/
+        virtual void DestroyBalloon(core::Entity entity);
         [[nodiscard]] core::Entity GetEntityFromPlayerNumber(PlayerNumber playerNumber) const;
         [[nodiscard]] Frame GetCurrentFrame() const { return currentFrame_; }
         [[nodiscard]] Frame GetLastValidateFrame() const { return rollbackManager_.GetLastValidateFrame(); }
@@ -42,7 +40,6 @@ namespace game
          */
         void Validate(Frame newValidateFrame);
 		virtual core::Entity SpawnBalloon(core::Vec2f position, core::Vec2f velocity);
-        //void CopyAllComponents(const GameManager& gameManager);
         static constexpr float PixelPerUnit = 100.0f;
         static constexpr float FixedPeriod = 0.02f; //50fps
         PlayerNumber CheckWinner() const;
@@ -76,7 +73,6 @@ namespace game
         void SetClientPlayer(PlayerNumber clientPlayer);
     	void SpawnPlayer(PlayerNumber playerNumber, core::Vec2f position) override;
         core::Entity SpawnBalloon(core::Vec2f position, core::Vec2f velocity) override;
-        core::Entity SpawnBullet(PlayerNumber playerNumber, core::Vec2f position, core::Vec2f velocity) override;
         void FixedUpdate();
         void SetPlayerInput(PlayerNumber playerNumber, std::uint8_t playerInput, std::uint32_t inputFrame) override;
         void DrawImGui() override;
@@ -97,12 +93,9 @@ namespace game
         float fixedTimer_ = 0.0f;
         unsigned long long startingTime_ = 0;
         std::uint32_t state_ = 0;
-
-        sf::Texture shipTexture_;
-        sf::Texture bulletTexture_;
+    	sf::Texture shipTexture_;
         sf::Texture balloonTexture_;
         sf::Font font_;
-
-        sf::Text textRenderer_;
+    	sf::Text textRenderer_;
     };
 }

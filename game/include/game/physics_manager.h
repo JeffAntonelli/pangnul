@@ -22,7 +22,7 @@ namespace game
         core::Vec2f velocity = core::Vec2f::zero();
         BodyType bodyType = BodyType::DYNAMIC;
     	static float CalculateDistance(CircleBody body1, CircleBody body2);
-        float rebound = 0.5f;
+        float rebound = 0.9f;
         static constexpr float radius = 0.17f;
     };
 

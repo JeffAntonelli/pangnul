@@ -1,6 +1,5 @@
 #pragma once
 
-#include "bullet_manager.h"
 #include "game_globals.h"
 #include "physics_manager.h"
 #include "player_character.h"
@@ -18,13 +17,6 @@ class GameManager;
     {
         core::Entity entity = core::EntityManager::INVALID_ENTITY;
         Frame createdFrame = 0;
-    };
-
-    struct DestroyedBullet
-    {
-        Bullet bullet;
-        CircleBody body;
-        Frame destroyedFrame = 0;
     };
 
     class RollbackManager : public OnTriggerInterface
@@ -53,7 +45,6 @@ class GameManager;
         [[nodiscard]] const core::TransformManager& GetTransformManager() const { return currentTransformManager_; }
         [[nodiscard]] const PlayerCharacterManager& GetPlayerCharacterManager() const { return currentPlayerManager_; }
         void SpawnPlayer(PlayerNumber playerNumber, core::Entity entity, core::Vec2f position);
-        void SpawnBullet(PlayerNumber playerNumber, core::Entity entity, core::Vec2f position, core::Vec2f velocity);
         void SpawnBalloon(core::Entity entity, core::Vec2f position, core::Vec2f velocity);
         /**
          * \brief This function does not destroy the entity definitely, but puts the DESTROY flag
@@ -71,13 +62,11 @@ class GameManager;
         core::TransformManager currentTransformManager_;
         PhysicsManager currentPhysicsManager_;
         PlayerCharacterManager currentPlayerManager_;
-        BulletManager currentBulletManager_;
         /**
          * Last Validate (confirm frame) Component Managers used for rollback
          */
         PhysicsManager lastValidatePhysicsManager_;
         PlayerCharacterManager lastValidatePlayerManager_;
-        BulletManager lastValidateBulletManager_;
 
 
         Frame lastValidateFrame_ = 0; //Confirm frame
@@ -85,7 +74,6 @@ class GameManager;
         Frame testedFrame_ = 0;
 
         core::Entity balloonEntity_ = core::EntityManager::INVALID_ENTITY;
-        core::Entity bulletEntity_ = core::EntityManager::INVALID_ENTITY; // Rajout.
 
         static constexpr std::size_t windowBufferSize = 5 * 50; // 5 seconds of frame at 50 fps
         std::array<std::uint32_t, maxPlayerNmb> lastReceivedFrame_{};
